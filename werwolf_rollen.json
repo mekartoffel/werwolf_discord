@@ -1,0 +1,164 @@
+{
+  "Werwolf": {
+    "wake up": {
+      "general": 1,
+      "only first night": 0,
+      "order": 5
+    },
+    "good": 0,
+    "lives": 1,
+    "alive": 1,
+    "citizen": "",
+    "description": "Jede Nacht fressen sie einen Dorfbewohner. Das Opfer scheidet aus der Partie aus und darf für den Rest der Partie nicht mehr kommunizieren.\nTagsüber versuchen sie, ihre wahre Identität zu verbergen.\nEin Werwolf kann auf gar keinen Fall einen anderen Werwolf fressen."
+  },
+  "Weißer Werwolf": {
+    "wake up": {
+      "general": 1,
+      "only first night": 0,
+      "order": 6
+    },
+    "good": 0,
+    "lives": 1,
+    "alive": 1,
+    "citizen": "",
+    "werewolf": "",
+    "description": "Jede Nacht erwacht der weiße Werwolf mit den Werwölfen und sucht sich mit ihnen ein Opfer unter den Dorfbewohnern. Doch jede zweite Nacht erwacht er, nach Aufruf durch den Spielleiter, alleine in einer eigenen Phase und darf einen Werwolf töten, wenn er möchte (jedoch keinen Dorfbewohner)."
+  },
+  "Wildes Kind": {
+    "wake up": {
+      "general": 1,
+      "only first night": 1,
+      "order": 2
+    },
+    "good": 1,
+    "lives": 1,
+    "alive": 1,
+    "role model": "",
+    "description": "Das wilde Kind ist ein Dorfbewohner. In der ersten Nacht wählt es still sein Vorbild unter den anderen Spielern. Wird dieser im Laufe des Spiels eliminiert, so kehrt das wilde Kind dem Dorf den Rücken und geht zu den Wölfen zurück. Von nun an erwacht es jede Nacht bis zum Ende der Partie als Werwolf und sucht sich mit ihnen ein Opfer.\nSolange das Vorbild am Leben ist, bleibt das wilde Kind ein Dorfbewohner. Selbst ein Werwolf als Vorbild ändert daran nichts. Ebenso kann das wilde Kind sich daran beteiligen, sein Vorbild zu eliminieren - sofern es dies wünscht.\nDas wilde Kind gewinnt mit den Dorfbewohnern, wenn sein Vorbild noch im Spiel ist und alle Werwölfe ausgeschieden sind. Ist sein Vorbild ausgeschieden und die Werwölfe gewinnen, teilt es den Sieg der Werwölfe."
+  },
+  "Dorfbewohner": {
+    "wake up": {
+      "general": 0,
+      "only first night": 0,
+      "order": -1
+    },
+    "good": 1,
+    "lives": 1,
+    "alive": 1,
+    "description": "Er hat keine besonderen Fähigkeiten. Seine einzigen Waffen sind sein scharfer Sinn für verdächtiges Verhalten und die Fähigkeit, die anderen von seiner Unschuld zu überzeugen."
+  },
+  "Hexe": {
+    "wake up": {
+      "general": 1,
+      "only first night": 0,
+      "order": 7
+    },
+    "good": 1,
+    "lives": 1,
+    "alive": 1,
+    "tranks": ["Heiltrank", "Gifttrank"],
+    "description": "Sie kann zwei sehr mächtige Zaubertränke brauen: Einen Heiltrank, um ein Opfer der Werwölfe vor dem Tod zu bewahren, und einen Gifttrank, um des Nachts einen beliebigen Spieler zu eliminieren. Die Hexe kann diese Zaubertränke jeweils nur einmal im Verlauf einer Partie nutzen. Sie kann beide Zaubertränke in derselben Nacht einsetzen. Die Hexe kann den Heiltrank auch bei sich selbst anwenden, um sich zu heilen, wenn sie von den Werwölfen angegriffen wurde."
+  },
+  "Seherin": {
+    "wake up": {
+      "general": 1,
+      "only first night": 0,
+      "order": 4
+    },
+    "good": 1,
+    "lives": 1,
+    "alive": 1,
+    "description": "Sie muss den anderen Dorfbewohnern helfen, dabei aber sehr bedacht vorgehen, da sie sonst von den Werwölfen entdeckt wird. Jede Nacht erkennt sie die wahre Identität eines Spielers ihrer Wahl."
+  },
+  "Dorfdepp": {
+    "wake up": {
+      "general": 0,
+      "only first night": 0,
+      "order": -1
+    },
+    "good": 1,
+    "lives": 1,
+    "alive": 1,
+    "description": "Wenn das Dorf gegen ihn stimmt, dreht der Dorfdepp seine Karte um. Augenblicklich erkennen die Dorfbewohner ihren Irrtum und begnadigen ihn sofort. Von nun an spielt er weiter, hat jedoch sein Stimmrecht verloren. Es gibt keine neue Abstimmung in dieser Runde."
+  },
+  "Jäger": {
+    "wake up": {
+      "general": 0,
+      "only first night": 0,
+      "order": -1
+    },
+    "good": 1,
+    "lives": 1,
+    "alive": 1,
+    "description": "Wenn er von den Werwölfen verschlungen oder von den Dorfbewohnern gelyncht wird, kann er sich vor seinem Ableben noch wehren und einen beliebigen Spieler bestimmen, der ebenfalls ausscheidet."
+  },
+  "Dieb": {
+    "wake up": {
+      "general": 1,
+      "only first night": 1,
+      "order": 0
+    },
+    "good": 1,
+    "lives": 1,
+    "alive": 1,
+    "description": "In der ersten Nacht sieht sich der Dieb die übrigen Karten an und darf seine eigene gegen eine dieser Karten austauschen. Wenn alle Karten Werwölfe sind, so muss er seine Karte gegen eine der Werwolf-Karten eintauschen. Er behält die nun gewählte Identität bis zum Spielende bei."
+  },
+  "Amor": {
+    "wake up": {
+      "general": 1,
+      "only first night": 1,
+      "order": 1
+    },
+    "good": 1,
+    "lives": 1,
+    "alive": 1,
+    "loving": ["",""],
+    "description": "Indem er seine Pfeile verschießt, hat Amor die Macht, zwei Spieler mit einer unsterblichen Liebe aneinanderzubinden.\nIn der ersten Nacht wählt er die zwei Spieler, die sich ineinander verlieben. Amor kann auch sich selbst als einen der Verliebten wählen.\nWenn einer der Verliebten ausscheidet, stirbt der andere Verliebte aus Kummer und scheidet ebenfalls sofort aus. Ein Verliebter darf nie gegen seinen Verliebten stimmen oder ihm auf eine andere Weise schaden (auch nicht zur Täuschung).\nDas Ziel der Verliebten ist es, gemeinsam bis zum Ende der Partie zu überleben. Haben sich ein Werwolf und ein Dorfbewohner ineinander verliebt, müssen sie alle anderen Spieler unter Beachtung der Spielregeln eliminieren, um die Partie zu gewinnen."
+  },
+  "Heiler": {
+    "wake up": {
+      "general": 1,
+      "only first night": 0,
+      "order": 3
+    },
+    "good": 1,
+    "lives": 1,
+    "alive": 1,
+    "chosen": "",
+    "description": "Wenn der Heiler nachts vor den Werwölfen aufgerufen wird, wählt er einen Spieler. Der so bestimmte Spieler wird in dieser Nacht (und nur in dieser Nacht) gegen die Wölfe geschützt sein. Wenn er von ihnen als Opfer ausgewählt wird, scheidet er nicht aus dem Spiel aus.\nDer Heiler hat das Recht, sich selbst zu schützen. Der Heiler darf nicht in zwei aufeinanderfolgenden Nächten denselben Spieler schützen."
+  },
+  "Alter Mann": {
+    "wake up": {
+      "general": 0,
+      "only first night": 0,
+      "order": -1
+    },
+    "good": 1,
+    "lives": 2,
+    "alive": 1,
+    "description": "Wenn die Werwölfe das erste Mal den Alten des Dorfes reißen, überlebt er. Der Alte scheidet erst aus, wenn er zweimal verschlungen wird.\nDie Abstimmung des Dorfes, der Gifttrank der Hexe oder der Schuss des Jägers eliminieren den Alten jedoch schon beim ersten Mal. In einem solchen Fall verlieren die Dorfbewohner außerdem noch ihre besonderen Fähigkeiten aus Verzweiflung darüber, einen solch hochgelehrten Mann getötet zu haben."
+  },
+  "Sündenbock": {
+    "wake up": {
+      "general": 0,
+      "only first night": 0,
+      "order": -1
+    },
+    "good": 1,
+    "lives": 1,
+    "alive": 1,
+    "description": "Wenn die Abstimmung des Dorfes eine Stimmengleichheit ergibt, so scheidet der Sündenbock anstelle der beiden Charaktere mit gleicher Stimmanzahl aus. Es liegt bei ihm, so zu handeln, dass dieses traurige Ende verhindert wird. Wenn der Sündenbock ausscheidet, bleibt ihm ein Vorrecht, das er ausüben kann: Er bestimmt, wer am nächsten Tag abstimmen darf und wer nicht."
+  },
+  "Stotternder Richter": {
+    "wake up": {
+      "general": 0,
+      "only first night": 0,
+      "order": -1
+    },
+    "good": 1,
+    "lives": 1,
+    "alive": 1,
+    "new vote": 1,
+    "description": "Einmal im Spiel darf der Richter entscheiden, dass am Tage eine weitere Abstimmung des Dorfes mit einem zweiten Opfer stattfindet. Diese zweite Abstimmung folgt direkt nach der ersten - ohne weitere Diskussion."
+  }
+}

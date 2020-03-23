@@ -1,0 +1,12 @@
+- ready/unready
+- start
+    -> genug Spieler? -- Starten bzw. weiterhin warten
+- Rolleneingabe
+    -> Richtige Rollen und genug Rollen? -- Rollen verteilen bzw. auf neue Eingabe warten
+- Rollenverteilung: Jeder Spieler erhält eine Rolle und bekommt einen Dict-Eintrag
+
+- Spielstart:
+    Dieb, Amor, Seherin,
+
+
+TODO: Taggen funktioniert nicht, muss anders umgesetzt werden (Nickname/Globaler Name? und dann immer zur Bestätigung taggen?)
