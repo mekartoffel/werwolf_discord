@@ -21,6 +21,7 @@ class Allgemein(commands.Cog):
         for word in hi:
             if word in message.content.lower():
                 emoji = get(self.bot.emojis, id=518072805296963584)
+                print(emoji)
                 await message.add_reaction(emoji)
                 break
         for word in glitzer:
@@ -31,7 +32,8 @@ class Allgemein(commands.Cog):
         if 'hose' in message.content.lower():
             emoji = get(self.bot.emojis, id=518072681837494292)
             await message.add_reaction(emoji)
-
+        
+        #print(discord.utils.find(lambda m: message.content in m.name , self.bot.get_guild(TEST_SERVER_ID).members))
 
         # Er soll aber nicht auf sich selbst antworten
         if message.author == self.bot.user:
@@ -44,6 +46,19 @@ class Allgemein(commands.Cog):
         except UnicodeEncodeError:
             print('Nachricht kann nicht angezeigt werden.')
 
+    @commands.command(pass_context=True,
+        description='Ist wie ein Echo: Gibt die gleiche Nachricht aus wie eingegeben wurde.',
+        brief='Wiederholt die eingegebene Nachricht.')
+    async def echo(self, ctx, *, argument):
+        print(argument)
+        await ctx.send(argument)
+        await ctx.message.delete()
+
+    @echo.error
+    async def echo_on_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await asyncio.sleep(0.5)
+            await ctx.send('Was soll ich wiederholen?')
 
 
     #Wenn jemand offline geht
