@@ -61,6 +61,14 @@ async def on_ready():
 async def on_resumed():
     print('Bot resumed.')
 
-bot.run(TOKEN)
+try:
+    bot.loop.run_until_complete(bot.start(TOKEN))
+except KeyboardInterrupt:
+    bot.loop.run_until_complete(bot.logout())
+    # cancel all tasks lingering
+finally:
+    bot.loop.close()
 
-bot.loop.close()
+#bot.run(TOKEN)
+
+#bot.loop.close()
