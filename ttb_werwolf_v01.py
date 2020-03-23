@@ -10,7 +10,7 @@ import logging
 
 
 
-bot = commands.Bot(command_prefix='+', description='Der Tingeltangelbot')
+bot = commands.Bot(command_prefix='?', description='Der Tingeltangelbot')
 
 
 startup_extensions = ['cogs.simple',

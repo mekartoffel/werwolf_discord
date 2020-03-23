@@ -2,6 +2,7 @@ import discord
 import json
 import re
 import operator
+import asyncio
 
 from discord.ext import commands
 from private import *
@@ -45,11 +46,10 @@ class Werwolf(commands.Cog):
                       description='TEST',
                       brief='TEST')
     async def test(self, ctx):
-        self.current_roles = ['Heiler', 'Hexe', 'Seherin']
+        self.current_roles = ['Dieb', 'Hexe', 'Seherin']
         self.playing = True
         for i in range(len(self.current_roles) - 2):
-            role = self.current_roles[i] = ' '.join(
-                map(lambda part: part.capitalize(), self.current_roles[i].split(' ')))
+            role = self.current_roles[i] = ' '.join(map(lambda part: part.capitalize(), self.current_roles[i].split(' ')))
             role_info = self.ww_roles[role]
             role_info['role'] = role
 
@@ -57,14 +57,23 @@ class Werwolf(commands.Cog):
             del self.player_list[ctx.message.author]['wake up']
             del self.player_list[ctx.message.author]['description']
             print(self.player_list)
-        await wake_healer(self)
+        await wake_thief(self)
 
     @commands.command(pass_context=True,
                       description='Beschreibung der verschiedenen Rollen.',
                       brief='Beschreibung der verschiedenen Rollen.')
     @commands.check(is_game_channel)
-    async def rollen(self, ctx):
-        await ctx.send('\n'.join(self.role_list))  # TODO Werwolfrollen beschreiben
+    async def rollen(self, ctx, *, argument):
+        arg = ' '.join(map(lambda part: part.capitalize(), argument.split(' ')))
+        print(arg)
+        print(self.ww_roles[arg])
+        await ctx.send(self.ww_roles[arg]['description'])
+
+    @rollen.error
+    async def echo_on_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await asyncio.sleep(0.5)
+            await ctx.send('Es gibt folgende Rollen: ' + ', '.join(self.role_list))
 
     @commands.command(pass_context=True,
                       description='Bereit für Werwolf.',
@@ -145,7 +154,9 @@ class Werwolf(commands.Cog):
         elif self.playing:
             if message.author.id == self.playerID and message.channel.id in game_channel_list:
                 if self.game_status['waiting for selection']:
-                    self.current_roles = message.content.split(',')
+                    self.current_roles = list(map(lambda r: r.strip(), message.content.split(',')))
+                    print(self.current_roles)
+                    self.current_roles = list(map(lambda r: ' '.join(map(lambda part: part.capitalize(),r.split(' '))), self.current_roles))
                     print(self.current_roles)
                     if not correct_roles(self):
                         await message.channel.send('Da stimmt etwas nicht. Gib ' + str(len(self.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Vergiss die Werwölfe nicht!')
@@ -154,37 +165,42 @@ class Werwolf(commands.Cog):
                         await message.channel.send('Die Rollen sind also \n' + role_string + '\nIst das so richtig?')
                         self.game_status['waiting for selection'] = False
                         self.game_status['selecting'] = True
-                elif self.game_status['selecting'] and message.content.lower().strip() == 'ja':
-                    await message.channel.send('Okay, dann verteile ich jetzt die Rollen.')
-                    # Schicke Rolle an jeden Spieler einzeln, nachdem die Rollen verteilt wurden
-                    await distribute_roles(self)
-                elif self.game_status['selecting'] and message.content.lower().strip() == 'nein':
-                    await message.channel.send('Gib die Rollen noch einmal ein. Trenne mit einem Komma.')
-                    self.game_status['waiting for selection'] = True
-                    self.game_status['selecting'] = False
+                elif self.game_status['selecting']:
+                    if message.content.lower().strip() == 'ja':
+                        await message.channel.send('Okay, dann verteile ich jetzt die Rollen.')
+                        # Schicke Rolle an jeden Spieler einzeln, nachdem die Rollen verteilt wurden
+                        await distribute_roles(self)
+                    elif message.content.lower().strip() == 'nein':
+                        await message.channel.send('Gib die Rollen noch einmal ein. Trenne mit einem Komma.')
+                        self.game_status['waiting for selection'] = True
+                        self.game_status['selecting'] = False
 
-
-            if message.author == get_player(self, 'Dieb') and isinstance(message.channel,discord.DMChannel) and self.phase == "THIEF":
-                await choosing_thief(self, message)
-            elif message.author == get_player(self, 'Amor') and isinstance(message.channel, discord.DMChannel) and self.phase == "AMOR":
-                await choosing_amor(self, message)
-            elif message.author == get_player(self, 'Wildes Kind') and isinstance(message.channel, discord.DMChannel) and self.phase == "WILD CHILD":
-                await choosing_wild_child(self, message)
-            elif message.author == get_player(self, 'Heiler') and isinstance(message.channel, discord.DMChannel) and self.phase == "HEALER":
-                await choosing_healer(self, message)
-            elif message.author == get_player(self, 'Seherin') and isinstance(message.channel, discord.DMChannel) and self.phase == "SEER":
-                await choose_seer(self, message)
-
-            elif is_bad(self, message.author.id) and message.channel.id == WERWOELFE_TEST_CHANNEL and self.phase == "WEREWOLVES":
-                await choose_werewolves(self, message)
-            elif is_bad(self, message.author.id) and message.channel.id == WERWOELFE_TEST_CHANNEL and self.phase == "WEREWOLVES_VALIDATING":
-                await validating_werewolves(self, message)
-            elif message.author == get_player(self, 'Weißer Werwolf') and isinstance(message.channel, discord.DMChannel) and self.phase == "WHITE_WEREWOLF":
-                await choose_white_werewolf(self, message)
-            elif message.author == get_player(self, 'Hexe') and isinstance(message.channel, discord.DMChannel) and self.phase == "WITCH_HEAL":
-                await choose_witch_heal(self, message)
-            elif message.author == get_player(self, 'Hexe') and isinstance(message.channel, discord.DMChannel) and self.phase == "WITCH_DEATH":
-                await choose_witch_kill(self, message)
+            if isinstance(message.channel,discord.DMChannel):
+                if message.author == get_player(self, 'Dieb') and self.phase == "THIEF":
+                    await choosing_thief(self, message)
+                elif message.author == get_player(self, 'Amor') and self.phase == "AMOR":
+                    await choosing_amor(self, message)
+                elif message.author == get_player(self, 'Wildes Kind') and self.phase == "WILD CHILD":
+                    await choosing_wild_child(self, message)
+                elif message.author == get_player(self, 'Heiler') and self.phase == "HEALER":
+                    await choosing_healer(self, message)
+                elif message.author == get_player(self, 'Seherin') and self.phase == "SEER":
+                    await choosing_seer(self, message)
+                #Werewolves
+                elif message.author == get_player(self, 'Weißer Werwolf') and self.phase == "WHITE_WEREWOLF":
+                    await choose_white_werewolf(self, message)
+                elif message.author == get_player(self, 'Hexe'):
+                    if self.phase == "WITCH_HEAL":
+                        await choose_witch_heal(self, message)
+                    elif self.phase == "WITCH_DEATH":
+                        await choose_witch_kill(self, message)
+            elif message.channel.id == WERWOELFE_TEST_CHANNEL:
+                if is_bad(self, message.author.id):
+                    if self.phase == "WEREWOLVES":
+                        await choosing_werewolves(self, message)
+                    elif self.phase == "WEREWOLVES_VALIDATING":
+                        await validating_werewolves(self, message)
+            
 
 
 def setup(bot):
