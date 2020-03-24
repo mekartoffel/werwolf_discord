@@ -11,7 +11,7 @@ AMOR_FINISHED = 'Amor hat sich zwei Personen ausgesucht, die sich ineinander ver
 WILD_CHILD_INPUT = 'Wer soll dein Vorbild sein? ' + INPUT_ONE
 WILD_CHILD_FINISHED = 'Das wilde Kind hat sich ein Vorbild ausgesucht und geht wieder schlafen.'
 
-HEALER_INPUT = 'Welche Person möchtest du beschützen? '
+HEALER_INPUT = 'Welche Person möchtest du beschützen? (Du kannst auch dich selbst retten.) '
 HEALER_FINISHED = 'Der Heiler hat eine Person gefunden, die es würdig ist, beschützt zu werden und geht wieder schlafen.'
 
 SEER_INPUT = 'Wen möchtest du überprüfen? ' + INPUT_ONE

@@ -49,7 +49,7 @@ class Werwolf(commands.Cog):
         self.current_roles = ['Dieb', 'Hexe', 'Seherin']
         self.playing = True
         for i in range(len(self.current_roles) - 2):
-            role = self.current_roles[i] = ' '.join(map(lambda part: part.capitalize(), self.current_roles[i].split(' ')))
+            role = self.current_roles[i] = ' '.join([part.capitalize() for part in self.current_roles[i].split(' ')])
             role_info = self.ww_roles[role]
             role_info['role'] = role
 
@@ -64,7 +64,7 @@ class Werwolf(commands.Cog):
                       brief='Beschreibung der verschiedenen Rollen.')
     @commands.check(is_game_channel)
     async def rollen(self, ctx, *, argument):
-        arg = ' '.join(map(lambda part: part.capitalize(), argument.split(' ')))
+        arg = ' '.join([part.capitalize() for part in argument.split(' ')])
         print(arg)
         print(self.ww_roles[arg])
         await ctx.send(self.ww_roles[arg]['description'])
@@ -83,6 +83,7 @@ class Werwolf(commands.Cog):
         if ctx.message.author not in self.ready_list and not self.playing:
             self.ready_list.append(ctx.message.author)
             print(self.ready_list)
+            await ctx.message.delete()
             await ctx.send(ctx.message.author.mention + ' ist bereit!')
         elif self.playing:
             await ctx.send('Es findet gerade ein Spiel statt. Du kannst danach mitspielen.')
@@ -96,6 +97,7 @@ class Werwolf(commands.Cog):
     async def unready(self, ctx):
         if ctx.message.author in self.ready_list and not self.playing:
             self.ready_list.remove(ctx.message.author)
+            await ctx.message.delete()
             await ctx.send(ctx.message.author.mention + ' ist nicht mehr bereit!')
         elif self.playing:
             await ctx.send('Das Spiel läuft schon. Du musst gar nicht bereit sein, spiel einfach mit! :)')
@@ -108,7 +110,7 @@ class Werwolf(commands.Cog):
     @commands.check(is_game_channel)
     async def readylist(self, ctx):
         if self.ready_list:
-            await ctx.send('Bereit sind:\n' + '\n'.join(map(lambda spieler: spieler.mention, self.ready_list)))
+            await ctx.send('Bereit sind:\n' + '\n'.join([spieler.mention for spieler in self.ready_list]))
         else:
             await ctx.send('Es ist noch keiner bereit.')
 
@@ -152,11 +154,12 @@ class Werwolf(commands.Cog):
             return
 
         elif self.playing:
+            print(self.phase)
             if message.author.id == self.playerID and message.channel.id in game_channel_list:
                 if self.game_status['waiting for selection']:
-                    self.current_roles = list(map(lambda r: r.strip(), message.content.split(',')))
+                    self.current_roles = [r.strip() for r in message.content.split(',')]
                     print(self.current_roles)
-                    self.current_roles = list(map(lambda r: ' '.join(map(lambda part: part.capitalize(),r.split(' '))), self.current_roles))
+                    self.current_roles = [' '.join([part.capitalize() for part in r.split(' ')]) for r in self.current_roles]
                     print(self.current_roles)
                     if not correct_roles(self):
                         await message.channel.send('Da stimmt etwas nicht. Gib ' + str(len(self.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Vergiss die Werwölfe nicht!')
@@ -188,12 +191,12 @@ class Werwolf(commands.Cog):
                     await choosing_seer(self, message)
                 #Werewolves
                 elif message.author == get_player(self, 'Weißer Werwolf') and self.phase == "WHITE_WEREWOLF":
-                    await choose_white_werewolf(self, message)
+                    await choosing_white_werewolf(self, message)
                 elif message.author == get_player(self, 'Hexe'):
                     if self.phase == "WITCH_HEAL":
-                        await choose_witch_heal(self, message)
+                        await choosing_witch_heal(self, message)
                     elif self.phase == "WITCH_DEATH":
-                        await choose_witch_kill(self, message)
+                        await choosing_witch_kill(self, message)
             elif message.channel.id == WERWOELFE_TEST_CHANNEL:
                 if is_bad(self, message.author.id):
                     if self.phase == "WEREWOLVES":
