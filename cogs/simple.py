@@ -64,10 +64,9 @@ class Allgemein(commands.Cog):
     #Wenn jemand offline geht
     async def on_member_update(self, before, after):
         server = self.bot.get_guild(id=TEST_SERVER_ID)
-        if str(after.status) == 'offline':
-            if after.guild.id == TEST_SERVER_ID or after not in server.members:
-                msg = time.strftime('%c: ') + '{} ist von {} auf {} gegangen.'.format(after.name, before.status, after.status)
-                print(msg)
+        if str(after.status) == 'offline' or str(before.status) == 'online':
+            msg = time.strftime('%c: ') + '{} ist von {} auf {} gegangen.'.format(after.name, before.status, after.status)
+            print(msg)
 
 
     @commands.command(pass_context=True,

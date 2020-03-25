@@ -59,7 +59,7 @@ class Werwolf(commands.Cog):
             del self.player_list[ctx.message.author]['wake up']
             del self.player_list[ctx.message.author]['description']
             print(self.player_list)
-        await ctx.message.author.send(get_name_discriminator(ctx.message.author))
+        await ctx.message.author.send('<#' + str(WERWOELFE_TEST_CHANNEL) + '>')
         await wake_thief(self)
 
     @commands.command(pass_context=True,
@@ -160,7 +160,7 @@ class Werwolf(commands.Cog):
     @commands.is_owner()
     async def reset_game(self, ctx):
         if self.playing:
-            reset_vars(self)
+            await reset_vars(self)
             await ctx.send('Das Spiel wurde zurückgesetzt.')
 
     @commands.Cog.listener()
