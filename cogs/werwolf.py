@@ -17,7 +17,7 @@ class Werwolf(commands.Cog):
     with open('werwolf_rollen.json', 'r', encoding='utf-8') as ww_data:
         ww_roles = json.load(ww_data)
 
-    PLAYER_MIN = 7
+    PLAYER_MIN = 1
     ready_list = []
     player_list = {}
     role_list = list(ww_roles.keys())
@@ -44,6 +44,7 @@ class Werwolf(commands.Cog):
         await ctx.send('TODO')  # TODO Werwolf beschreiben
 
     @commands.command(pass_context=True,
+                      hidden=True,
                       description='TEST',
                       brief='TEST')
     async def test(self, ctx):
@@ -58,6 +59,7 @@ class Werwolf(commands.Cog):
             del self.player_list[ctx.message.author]['wake up']
             del self.player_list[ctx.message.author]['description']
             print(self.player_list)
+        await ctx.message.author.send(get_name_discriminator(ctx.message.author))
         await wake_thief(self)
 
     @commands.command(pass_context=True,
