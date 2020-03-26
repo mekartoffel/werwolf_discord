@@ -5,7 +5,6 @@ from collections import Counter
 from typing import Dict
 
 import operator
-import time
 import random
 import discord
 import asyncio
@@ -634,13 +633,14 @@ async def choosing_witch_kill(s, msg):
 async def daytime(s):
     print(s.player_list)
     print(s.died)
+    substract_lives(s)
     if [u.mention for u in s.died if u]:
         amor = get_player(s, 'Amor')
         if amor:
             # Wenn einer der Liebenden stirbt, sterben beide
-            if s.player_list[amor]['loving'][0] in s.died:
+            if s.player_list[amor]['loving'][0] in s.died and s.player_list[amor]['loving'][1] not in s.died:
                 s.died.append(s.player_list[amor]['loving'][1])
-            elif s.player_list[amor]['loving'][1] in s.died:
+            elif s.player_list[amor]['loving'][1] in s.died and s.player_list[amor]['loving'][1] not in s.died:
                 s.died.append(s.player_list[amor]['loving'][0])
         await wake_up_with_dead(s)
     else:
@@ -656,15 +656,6 @@ async def wake_up_with_dead(s):
             await s.bot.get_channel(GAME_TEST_CHANNEL).send(HUNTER_DIED + hunter.mention + HUNTER_INPUT)
             s.phase = 'HUNTER_NIGHT'
             # Warte auf die Nachricht des Jägers
-    for d in s.died:
-        if d:
-            s.player_list[d]['lives'] -= 1  # Jeder verliert ein Leben
-            if s.player_list[d]['lives'] > 0:
-                # Wenn der Spieler noch Leben übrig hat, dann stirbt er nicht
-                s.died[s.died.index(d)] = None
-            else:
-                # Der Spieler lebt nicht mehr
-                s.player_list[d]['alive'] = 0
     if s.phase == 'HUNTER_NIGHT':
         return
     await good_to_wild(s)
@@ -817,6 +808,18 @@ async def after_voting(s):
     else:
         await reset_vars(s)
 
+def substract_lives(s):
+    for d in s.died:
+        if d:
+            s.player_list[d]['lives'] -= 1  # Jeder verliert ein Leben
+            if s.player_list[d]['lives'] > 0 and d == s.died[0] or d == s.died[1]:
+                # Wenn der Spieler noch Leben übrig hat, dann stirbt er nicht;
+                # aber nur, wenn er von einem Werwolf gefressen wurde
+                s.died[s.died.index(d)] = None
+            else:
+                # Der Spieler lebt nicht mehr
+                s.player_list[d]['alive'] = 0
+
 async def game_over(s):
     print(s.player_list)
     if not still_alive(s):
@@ -834,12 +837,14 @@ async def game_over(s):
                 return True
     elif True not in [s.player_list[x]['good'] for x in still_alive(s)]:
         # Die Dorfbewohner haben verloren
-        if len(still_alive(s)) == 1 and s.player_list[get_player(s, 'Weißer Werwolf')] in still_alive(s):
-            await s.bot.get_channel(GAME_TEST_CHANNEL).send(GAME_OVER + WHITE_WEREWOLF_WON)
-            #await reset_vars(s)
-        else:
-            await s.bot.get_channel(GAME_TEST_CHANNEL).send(GAME_OVER + BAD_WON)
-            #await reset_vars(s)
+        white_werewolf = get_player(s, 'Weißer Werwolf')
+        if len(still_alive(s)) == 1:
+            if white_werewolf:
+                if s.player_list[white_werewolf] in still_alive(s):
+                    await s.bot.get_channel(GAME_TEST_CHANNEL).send(GAME_OVER + WHITE_WEREWOLF_WON)
+                    return True
+        await s.bot.get_channel(GAME_TEST_CHANNEL).send(GAME_OVER + BAD_WON)
+        #await reset_vars(s)
         return True
     elif False not in [s.player_list[x]['good'] for x in still_alive(s)]:
         # Die Werwölfe haben verloren

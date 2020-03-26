@@ -1,15 +1,8 @@
-import discord
 import json
-import re
-import operator
-import asyncio
 
 from discord.ext import commands
-from private import *
 from cogs.werwolf_functions import *
-from typing import Dict, Any
-from collections import Counter
-from my_constants import *
+from typing import Dict
 
 class Werwolf(commands.Cog):
     ww_data = {}
@@ -17,10 +10,13 @@ class Werwolf(commands.Cog):
     with open('werwolf_rollen.json', 'r', encoding='utf-8') as ww_data:
         ww_roles = json.load(ww_data)
 
+    role_list = list(ww_roles.keys())
+
+    games = {}
+
     PLAYER_MIN = 1
     ready_list = []
     player_list = {}
-    role_list = list(ww_roles.keys())
     current_roles = []
     died = [None, None, None]  # [von werwölfen, von weißer werwolf, von hexe]
     new_vote = False
@@ -183,9 +179,8 @@ class Werwolf(commands.Cog):
                 if  message.author.id == self.playerID and self.phase == "SELECTION":
                     if self.game_status['waiting for selection']:
                         self.current_roles = [r.strip() for r in message.content.split(',')]
-                        print(self.current_roles)
                         self.current_roles = [' '.join([part.capitalize() for part in r.split(' ')]) for r in self.current_roles]
-                        print(self.current_roles)
+                        print('Rollen: ' + str(self.current_roles))
                         if not correct_roles(self):
                             await message.channel.send('Da stimmt etwas nicht. Gib ' + str(len(self.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Vergiss die Werwölfe nicht!')
                         else:
