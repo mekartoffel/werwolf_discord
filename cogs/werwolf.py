@@ -4,6 +4,26 @@ from discord.ext import commands
 from cogs.werwolf_functions import *
 from typing import Dict
 
+class Game():
+    ready_list = []
+    player_list = {}
+    current_roles = []
+    died = [None, None, None]  # [von werwölfen, von weißer werwolf, von hexe]
+    new_vote = False
+
+    playerID = None  # welcher Spieler hat das Spiel gestartet?
+    playing = False  # läuft ein Spiel?
+    phase = ''  # Was passiert gerade?
+
+    game_status: Dict[str, bool] = {'waiting for selection': False, 'selecting': False, 'playing': False}
+    round_no = 1
+
+    def __init__(self, server_id, game_channel, werewolf_channel):
+        self.server_id = server_id
+        self.game_channel = game_channel
+        self.werewolf_channel = werewolf_channel
+
+
 class Werwolf(commands.Cog):
     ww_data = {}
     ww_roles = {}
@@ -12,7 +32,8 @@ class Werwolf(commands.Cog):
 
     role_list = list(ww_roles.keys())
 
-    games = {}
+    games = {v:Game(v, k['game channel'], k['werewolf channel']) for v,k in server_dict.copy().items()}
+    print(games)
 
     PLAYER_MIN = 1
     ready_list = []
@@ -226,7 +247,7 @@ class Werwolf(commands.Cog):
                         await choosing_witch_heal(self, message)
                     elif self.phase == "WITCH_DEATH":
                         await choosing_witch_kill(self, message)
-            elif message.channel.id == WERWOELFE_TEST_CHANNEL:
+            elif message.channel.id == PLAYING_WEREWOLVES_CHANNEL:
                 if is_bad(self, message.author.id):
                     if self.phase == "WEREWOLVES":
                         await choosing_werewolves(self, message)
