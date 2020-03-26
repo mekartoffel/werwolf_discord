@@ -414,20 +414,20 @@ async def wake_werewolves(s):
     # Warte auf Antwort von den Werwölfen
 
 async def choosing_werewolves(s, msg):
-    chosen = get_player_by_name(s, msg.content.strip())
-    print(chosen)
-    if chosen in s.player_list.keys():
+    citizen = get_player_by_name(s, msg.content.strip())
+    print(citizen)
+    if citizen in s.player_list.keys():
         # Wen wollen die Werwölfe fressen?
-        if not is_bad(s, chosen.id) and is_alive(s, chosen.id):
+        if not is_bad(s, citizen.id) and is_alive(s, citizen.id):
             # Ist diese Person überhaupt ein Dorfbewohner? Und lebt sie noch?
             amor = get_player(s, 'Amor')
             if amor:
-                if msg.author in s.player_list[amor]['loving'] and chosen in s.player_list[amor]['loving']:
+                if msg.author in s.player_list[amor]['loving'] and citizen in s.player_list[amor]['loving']:
                     #Wenn ein Werwolf seinen Liebespartner fressen will, halte ihn davon ab
                     await msg.author.send('Du kannst deinen Liebespartner doch nicht fressen! 💔')
                     return
-            s.player_list[msg.author]['citizen'] = chosen
-            await s.bot.get_channel(WERWOELFE_TEST_CHANNEL).send(msg.author.mention + ' möchte folgende Person fressen: ' + get_name_discriminator(chosen))
+            s.player_list[msg.author]['citizen'] = citizen
+            await s.bot.get_channel(WERWOELFE_TEST_CHANNEL).send(msg.author.mention + ' möchte folgende Person fressen: ' + get_name_discriminator(citizen))
             if werewolves_chosen(s):
                 # Erst, wenn alle gewählt haben, wird gefragt, ob sie mit der Wahl einverstanden sind.
                 citizens = []
@@ -450,6 +450,9 @@ async def confirming_werewolves(s, msg):
             # Wenn der Heiler diese Person schützt, wird sie aber nicht sterben
             if s.died[0] == s.player_list[get_player(s, 'Heiler')]['chosen']:
                 s.died[0] = None
+        for c, v in s.player_list.items():
+            if is_alive(s, c.id) and is_bad(s, c.id):
+                v['citizen'] = None
         # Phase beendet; Entscheidung, was als nächstes passiert
         s.phase = ''
         if 'Weißer Werwolf' in s.current_roles and (s.round_no % 2 == 0):
