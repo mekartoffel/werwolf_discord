@@ -25,6 +25,7 @@ async def distribute_roles(s):
     Keyword arguments:
     s -- self of the calling class; to pass class vars
     """
+    werewolves = []
     shuffle(s.current_roles)
     for i, player in enumerate(s.ready_list):
         role = s.current_roles[i]# = ' '.join(map(lambda part: part.capitalize(), s.current_roles[i].split(' ')))
@@ -37,9 +38,10 @@ async def distribute_roles(s):
 
         await player.send('Du hast folgende Rolle: ' + role)
         if not s.player_list[player]['good']:
+            werewolves.append(player)
             await player.send('Es wurde ein neuer Kanal für dich und die anderen Werwölfe freigeschalten: <#' + str(WERWOELFE_TEST_CHANNEL) + '>')
             await s.bot.get_channel(WERWOELFE_TEST_CHANNEL).set_permissions(player, read_messages=True, send_messages=True)
-            await s.bot.get_channel(WERWOELFE_TEST_CHANNEL).send('Willkommen!\nIhr seid für diese Runde die Werwölfe. Hier ist Raum für euch zum Diskutieren.')
+    await s.bot.get_channel(WERWOELFE_TEST_CHANNEL).send('Willkommen!\n' + ' '.join([w.mention for w in werewolves]) + ', ihr seid für diese Runde die Werwölfe. Hier ist Raum für euch zum Diskutieren.')
     print(s.player_list)
     await first_night(s)
 
@@ -212,7 +214,7 @@ async def wake_thief(s):
     if not get_player(s, 'Dieb'):
         # Kein Spieler ist Dieb
         # Sleep, sodass niemand es merkt, dass kein Dieb im Spiel ist
-        time.sleep(random.randint(40, 120))
+        await asyncio.sleep(random.randint(40, 110))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(THIEF_FINISHED)
         if 'Amor' in s.current_roles:
             await wake_amor(s)
@@ -261,7 +263,7 @@ async def wake_amor(s):
     if not get_player(s, 'Amor'):
         # Kein Spieler ist Amor
         # Sleep, sodass es nicht auffällt, dass kein Amor im Spiel ist
-        time.sleep(random.randint(30, 120))
+        await asyncio.sleep(random.randint(30, 100))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(AMOR_FINISHED)
         if 'Wildes Kind' in s.current_roles:
             await wake_wild_child(s)
@@ -299,7 +301,7 @@ async def wake_wild_child(s):
     if not get_player(s, 'Wildes Kind'):
         # Kein Spieler ist das wilde Kind
         # Sleep, sodass es nicht auffällt, dass kein wildes Kind im Spiel ist
-        time.sleep(random.randint(30, 120))
+        await asyncio.sleep(random.randint(30, 100))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(WILD_CHILD_FINISHED)
         await standard_night(s)
     else:
@@ -325,7 +327,7 @@ async def wake_healer(s):
     if not get_player(s, 'Heiler'):
         # Kein Spieler ist der Heiler
         # Sleep, sodass es nicht auffällt
-        time.sleep(random.randint(25, 85))
+        await asyncio.sleep(random.randint(25, 75))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(HEALER_FINISHED)
         if 'Seherin' in s.current_roles:
             await wake_seer(s)
@@ -334,7 +336,7 @@ async def wake_healer(s):
     elif not is_alive(s, get_player(s, 'Heiler').id):
         # Heiler ist schon tot
         # Sleep, sodass es nicht auffällt, dass er tot ist
-        time.sleep(random.randint(25, 85))
+        await asyncio.sleep(random.randint(25, 60))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(SEER_FINISHED)
         if 'Seherin' in s.current_roles:
             await wake_seer(s)
@@ -375,13 +377,13 @@ async def wake_seer(s):
     if not get_player(s, 'Seherin'):
         # Kein Spieler ist die Seherin
         # Sleep, sodass es nicht auffällt
-        time.sleep(random.randint(25, 85))
+        await asyncio.sleep(random.randint(25, 75))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(SEER_FINISHED)
         await wake_werewolves(s)
     elif not is_alive(s, get_player(s, 'Seherin').id):
         # Die Seherin ist schon tot
         # Sleep, sodass es nicht auffällt
-        time.sleep(random.randint(25, 85))
+        await asyncio.sleep(random.randint(25, 60))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(SEER_FINISHED)
         await wake_werewolves(s)
     else:
@@ -471,7 +473,7 @@ async def wake_white_werewolf(s):
     if not get_player(s, 'Weißer Werwolf'):
         # Kein Spieler ist der weiße Werwolf
         # Sleep, sodass es nicht auffällt
-        time.sleep(random.randint(25, 110))
+        await asyncio.sleep(random.randint(25, 110))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(WHITE_WEREWOLF_FINISHED)
         if 'Hexe' in s.current_roles:
             await wake_witch(s)
@@ -480,7 +482,7 @@ async def wake_white_werewolf(s):
     elif not is_alive(s, get_player(s, 'Weißer Werwolf').id):
         # Der weiße Werwolf ist schon tot
         # Sleep, sodass es nicht auffällt
-        time.sleep(random.randint(25, 100))
+        await asyncio.sleep(random.randint(25, 100))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(WHITE_WEREWOLF_FINISHED)
         if 'Hexe' in s.current_roles:
             await wake_witch(s)
@@ -533,13 +535,13 @@ async def wake_witch(s):
     if not witch:
         # Kein Spieler ist die Hexe
         # Sleep, sodass es nicht auffällt
-        await asyncio.sleep(random.randint(45, 120))
+        await asyncio.sleep(random.randint(45, 110))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(WITCH_FINISHED)
         await daytime(s)
     elif not is_alive(s, witch.id):
         # Die Hexe ist schon tot
         # Sleep, sodass es nicht auffällt
-        time.sleep(random.randint(45, 120))
+        await asyncio.sleep(random.randint(45, 100))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(WITCH_FINISHED)
         await daytime(s)
     else:
@@ -548,7 +550,7 @@ async def wake_witch(s):
             # Die Hexe hat keine Tränke mehr und kann nichts machen
             await witch.send(
                 'Du hast keine Tränke mehr, die du verwenden kannst. (Wir warten jetzt pseudomäßig trotzdem 😈)')
-            await asyncio.sleep(random.randint(45, 60))
+            await asyncio.sleep(random.randint(30, 60))
             await s.bot.get_channel(GAME_TEST_CHANNEL).send(WITCH_FINISHED)
             await daytime(s)
         else:

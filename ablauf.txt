@@ -19,5 +19,4 @@
 
 TODO: Nachrichten kommen doppelt? Hexe, neuer Tag, Werwolf Willkommen
 TODO: Wer ist Werwolf?
-TODO: Pings in DMs mit Namen in Klammern
 TODO: Wer ist noch am Leben? Wer hat noch nicht abgestimmt?

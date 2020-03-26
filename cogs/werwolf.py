@@ -40,7 +40,7 @@ class Werwolf(commands.Cog):
                       description='Beschreibung des Spiels Werwolf.',
                       brief='Beschreibung des Spiels Werwolf.')
     @commands.check(is_game_channel)
-    async def beschreibung(self, ctx):
+    async def descr(self, ctx):
         await ctx.send('TODO')  # TODO Werwolf beschreiben
 
     @commands.command(pass_context=True,
@@ -66,14 +66,14 @@ class Werwolf(commands.Cog):
                       description='Beschreibung der verschiedenen Rollen.',
                       brief='Beschreibung der verschiedenen Rollen.')
     @commands.check(is_game_channel)
-    async def rollen(self, ctx, *, argument):
+    async def roles(self, ctx, *, argument):
         arg = ' '.join([part.capitalize() for part in argument.split(' ')])
         print(arg)
         print(self.ww_roles[arg])
         await ctx.send(self.ww_roles[arg]['description'])
 
-    @rollen.error
-    async def echo_on_error(self, ctx, error):
+    @roles.error
+    async def roles_on_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await asyncio.sleep(0.5)
             await ctx.send('Es gibt folgende Rollen: ' + ', '.join(self.role_list))
@@ -113,7 +113,7 @@ class Werwolf(commands.Cog):
     @commands.check(is_game_channel)
     async def readylist(self, ctx):
         if self.ready_list:
-            await ctx.send('Bereit sind:\n' + '\n'.join([spieler.mention for spieler in self.ready_list]))
+            await ctx.send('Bereit sind:\n' + '\n'.join([player.mention for player in self.ready_list]))
         else:
             await ctx.send('Es ist noch keiner bereit.')
 
@@ -122,26 +122,36 @@ class Werwolf(commands.Cog):
                       brief='Starte Werwolf.')
     @commands.check(is_game_channel)
     async def start(self, ctx):
-        if ctx.message.author not in self.ready_list:
+        player = ctx.message.author
+        if player not in self.ready_list:
             # Der Starter muss auch in der ready_list sein
-            self.ready_list.append(ctx.message.author)
-            await ctx.send(ctx.message.author.mention + ' ist bereit!')
+            self.ready_list.append(player)
+            await ctx.send(player.mention + ' ist bereit!')
         if len(self.ready_list) >= self.PLAYER_MIN:
             # Starte das Spiel nur, wenn genügend Spieler bereit sind
-            spieler = ctx.message.author
-            mitspieler = ''
+            other_players = ''
             for s in self.ready_list:
-                mitspieler = mitspieler + '\n' + s.mention
-            self.playerID = spieler.id
+                other_players = other_players + '\n' + s.mention
+            self.playerID = player.id
             print(still_alive(self))
             await ctx.send(
-                spieler.mention + ' hat das Spiel gestartet und wählt somit, welche Rollen dabei sind. Mitspieler sind:' + mitspieler)
-            await ctx.send(spieler.mention + ', gib ' + str(len(self.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Trenne mit einem Komma, z.B. \"Rolle1, Rolle2, Rolle3\"')
+                player.mention + ' hat das Spiel gestartet und wählt somit, welche Rollen dabei sind. Mitspieler sind:' + other_players)
+            await ctx.send(player.mention + ', gib ' + str(len(self.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Trenne mit einem Komma, z.B. \"Rolle1, Rolle2, Rolle3\"')
             self.playing = True
             self.game_status['waiting for selection'] = True
             self.phase = 'SELECTION'
         else:
             await ctx.send('Es sind noch nicht genügend Spieler. Es sollte(n) noch mindestens ' + str(self.PLAYER_MIN - len(self.ready_list)) + ' Spieler dazukommen.')
+
+    @commands.command(pass_context=True,
+                      description='Liste von Spielern, die noch am Leben sind.',
+                      brief='Liste von Spielern, die noch am Leben sind.')
+    @commands.check(is_game_channel)
+    async def alive(self, ctx):
+        if self.playing:
+            await ctx.send('Es leben noch:\n' + '\n'.join([player.mention for player in self.player_list if is_alive(self, player.id)]))
+        else:
+            await ctx.send('Es kann keiner tot sein, wenn niemand spielt. :)')
 
     @commands.command(pass_context=True,
                       hidden=True,
