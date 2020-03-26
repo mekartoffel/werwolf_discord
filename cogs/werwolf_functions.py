@@ -420,6 +420,12 @@ async def choosing_werewolves(s, msg):
         # Wen wollen die Werwölfe fressen?
         if not is_bad(s, chosen.id) and is_alive(s, chosen.id):
             # Ist diese Person überhaupt ein Dorfbewohner? Und lebt sie noch?
+            amor = get_player(s, 'Amor')
+            if amor:
+                if msg.author in s.player_list[amor]['loving'] and chosen in s.player_list[amor]['loving']:
+                    #Wenn ein Werwolf seinen Liebespartner fressen will, halte ihn davon ab
+                    await msg.author.send('Du kannst deinen Liebespartner doch nicht fressen! 💔')
+                    return
             s.player_list[msg.author]['citizen'] = chosen
             await s.bot.get_channel(WERWOELFE_TEST_CHANNEL).send(msg.author.mention + ' möchte folgende Person fressen: ' + get_name_discriminator(chosen))
             if werewolves_chosen(s):
@@ -494,6 +500,12 @@ async def choosing_white_werewolf(s, msg):
         # Wen will der weiße Werwolf fressen?
         if is_alive(s, chosen.id) and is_bad(s, chosen.id):
             # Lebt die Person noch? Ist das überhaupt einer seiner Werwolfkameraden?
+            amor = get_player(s, 'Amor')
+            if amor:
+                if msg.author in s.player_list[amor]['loving'] and chosen in s.player_list[amor]['loving']:
+                    # Wenn ein Werwolf seinen Liebespartner fressen will, halte ihn davon ab
+                    await msg.author.send('Du kannst deinen Liebespartner doch nicht fressen! 💔')
+                    return
             comrade = chosen
             await msg.author.send('Du hast folgende Person gefressen' + comrade.mention + ' ({})'.format(get_name_discriminator(comrade)))
             s.died[1] = comrade
@@ -594,6 +606,12 @@ async def choosing_witch_kill(s, msg):
         # Wen will sie vergiften?
         if is_alive(s, chosen.id):
             # Lebt diese Person überhaupt noch?
+            amor = get_player(s, 'Amor')
+            if amor:
+                if msg.author in s.player_list[amor]['loving'] and chosen in s.player_list[amor]['loving']:
+                    # Wenn die Hexe ihren Liebespartner vergiften will, halte sie davon ab
+                    await msg.author.send('Du kannst deinen Liebespartner doch nicht vergiften! 💔')
+                    return
             del s.player_list[get_player(s, 'Hexe')]['tranks'][s.player_list[get_player(s, 'Hexe')]['tranks'].index('Gifttrank')]
             killed_person = chosen
             await msg.author.send('Du hast folgende Person vergiftet: ' + killed_person.mention + ' ({})'.format(get_name_discriminator(killed_person)))
@@ -715,6 +733,12 @@ async def voting(s, msg):
             # Wen will ein Spieler töten?
             if is_alive(s, chosen_id):
                 # Lebt die Person noch?
+                amor = get_player(s, 'Amor')
+                if amor:
+                    if msg.author in s.player_list[amor]['loving'] and chosen in s.player_list[amor]['loving']:
+                        # Wenn jemand gegen seinen Liebespartner stimmen will, halte ihn davon ab
+                        await msg.author.send('Du kannst doch nicht gegen deinen Liebespartner stimmen! 💔')
+                        return
                 s.player_list[msg.author]['voted for'] = chosen
                 await s.bot.get_channel(GAME_TEST_CHANNEL).send(msg.author.mention + ' hat abgestimmt!')
                 if citizens_chosen(s):
