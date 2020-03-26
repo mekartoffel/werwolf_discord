@@ -6,13 +6,20 @@
 - Rollenverteilung: Jeder Spieler erhält eine Rolle und bekommt einen Dict-Eintrag
 
 - Spiel:
-  Es funktioniert: Seherin, Hexe (retten, vergiften), Dieb, Werwolf (wenn alleine), heiler
+  Es funktioniert: Seherin, Hexe, Dieb, Werwolf, heiler, jäger
   noch zu testen:
-  - Hexe kann später noch was einsetzen?
-  - Mehrere Werwölfe
-  - Wildes Kind
   - Amor
   - Heiler (zwei mal hintereinander die gleiche person)
+  - weißer WErwolf
+  - dorfdepp
+  - alter mann
+  - sündenbock
+  - richter
 
 
-TODO: Taggen funktioniert nicht, muss anders umgesetzt werden (Nickname/Globaler Name? und dann immer zur Bestätigung taggen?)
+TODO: Liebespaar darf nicht gegeneinander stimmen
+TODO: Nachrichten kommen doppelt? Hexe, neuer Tag, Werwolf Willkommen
+TODO: Wer ist Werwolf?
+TODO: Reset nach WErwolf Fressen Wahl
+TODO: Pings in DMs mit Namen in Klammern
+TODO: Wer ist noch am Leben? Wer hat noch nicht abgestimmt?

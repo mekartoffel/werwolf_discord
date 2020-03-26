@@ -28,7 +28,7 @@ async def distribute_roles(s):
     shuffle(s.current_roles)
     for i, player in enumerate(s.ready_list):
         role = s.current_roles[i]# = ' '.join(map(lambda part: part.capitalize(), s.current_roles[i].split(' ')))
-        role_info = s.ww_roles[role]
+        role_info = s.ww_roles[role].copy()
         role_info['role'] = role
 
         s.player_list[player] = role_info
@@ -52,8 +52,10 @@ def correct_roles(s):
     """
     roles = [role.lower().strip() for role in s.current_roles]
     if 'werwolf' not in roles:
+        print('kein werwolf')
         return False
     elif False in [r in [role.lower() for role in s.role_list] for r in roles]:
+        print('kein richtiger')
         return False
     if 'dieb' in roles:
         return len(roles) == len(s.ready_list) +2
@@ -159,6 +161,8 @@ def citizens_chosen(s):
             if p == idiot:
                 if not s.player_list[idiot]['voting right']:
                     continue
+            if not s.player_list[p]['alive']:
+                continue
             return False
     return True
 
@@ -272,13 +276,13 @@ async def choosing_amor(s, msg):
     chosen = [get_player_by_name(s, p.strip()) for p in msg.content.split(',')]
     if len(chosen) >= 2 and in_playerlist(s, chosen):
         # Wer sind die Verliebten?
-        s.player_list[msg.author]['loving'] = [get_player_by_name(s, n) for n in chosen[:2]]
+        s.player_list[msg.author]['loving'] = chosen[:2]
         await msg.author.send('Okay, die beiden sind nun verliebt: ' + ' und '.join([user.mention for user in s.player_list[msg.author]['loving']]))
         # Die Verliebten informieren
         lover1 = s.player_list[msg.author]['loving'][0]
         lover2 = s.player_list[msg.author]['loving'][1]
-        await lover1.send('Du bist jetzt verliebt in ' + lover2.mention + ' ' + discord.utils.get(s.bot.emojis, id=524903179574575124))
-        await lover2.send('Du bist jetzt verliebt in ' + lover1.mention + ' ' + discord.utils.get(s.bot.emojis, id=524903179574575124))
+        await lover1.send('Du bist jetzt verliebt in ' + lover2.mention + ' ' + str(discord.utils.get(s.bot.emojis, id=524903179574575124)))
+        await lover2.send('Du bist jetzt verliebt in ' + lover1.mention + ' ' + str(discord.utils.get(s.bot.emojis, id=524903179574575124)))
         await s.bot.get_channel(GAME_TEST_CHANNEL).send(AMOR_FINISHED)
         # Phase ist beendet; Entscheidung, was als nächstes passiert
         s.phase = ''
@@ -318,7 +322,7 @@ async def choosing_wild_child(s, msg):
 
 async def wake_healer(s):
     await s.bot.get_channel(GAME_TEST_CHANNEL).send('Der Heiler erwacht. Er möchte diese Nacht jemanden beschützen.')
-    if not get_player_by_name(s, 'Heiler'):
+    if not get_player(s, 'Heiler'):
         # Kein Spieler ist der Heiler
         # Sleep, sodass es nicht auffällt
         time.sleep(random.randint(25, 85))
@@ -647,9 +651,13 @@ async def good_to_wild(s):
     wild_child = get_player(s, 'Wildes Kind')
     if wild_child:
         if is_alive(s, wild_child.id) and s.player_list[wild_child]['good']:
-            if not is_alive(s, s.player_list[wild_child]['role model']):
+            if not is_alive(s, s.player_list[wild_child]['role model'].id):
                 s.player_list[wild_child]['good'] = 0
                 await wild_child.send('Dein Vorbild ist gestorben. Du agierst jetzt als Werwolf.')
+                await wild_child.send('Es wurde ein neuer Kanal für dich und die anderen Werwölfe freigeschalten: <#' + str(
+                    WERWOELFE_TEST_CHANNEL) + '>')
+                await s.bot.get_channel(WERWOELFE_TEST_CHANNEL).set_permissions(wild_child, read_messages=True,
+                                                                                send_messages=True)
 
 async def choosing_hunter(s, msg):
     chosen = get_player_by_name(s, msg.content.strip())
@@ -662,9 +670,12 @@ async def choosing_hunter(s, msg):
             await s.bot.get_channel(GAME_TEST_CHANNEL).send('Der Jäger hat folgende Person mit sich in den Tod gerissen: ' + chosen.mention)
             # Phase beendet; Der Tag beginnt
             if s.phase == "HUNTER_NIGHT":
+                await good_to_wild(s)
                 await angry_mob(s)
+                return
             elif s.phase == "HUNTER_VOTE":
                 await after_voting(s)
+                return
             s.phase = ''
         elif not is_alive(s, chosen.id):
             await s.bot.get_channel(GAME_TEST_CHANNEL).send(NOT_ALIVE + msg.author.mention + HUNTER_INPUT)
@@ -689,14 +700,23 @@ async def voting(s, msg):
         if not s.player_list[idiot]['voting right']:
             # Wenn der Dorfdepp kein Stimmrecht mehr hat, dann ignorieren
             return
+    if not s.player_list[msg.author]['alive']:
+        return
     try:
-        chosen_id = int(re.findall(r'(?<=<@!)\d{18}(?=>)', msg.content)[0])
+        try:
+            chosen_id = int(re.findall(r'(?<=<@!)\d{18}(?=>)', msg.content)[0])
+        except IndexError:
+            try:
+                chosen_id = int(re.findall(r'(?<=<@)\d{18}(?=>)', msg.content)[0])
+            except IndexError:
+                return
         chosen = s.bot.get_user(chosen_id)
         if chosen in s.player_list.keys():
             # Wen will ein Spieler töten?
             if is_alive(s, chosen_id):
                 # Lebt die Person noch?
                 s.player_list[msg.author]['voted for'] = chosen
+                await s.bot.get_channel(GAME_TEST_CHANNEL).send(msg.author.mention + ' hat abgestimmt!')
                 if citizens_chosen(s):
                     # Alle haben gewählt, Abstimmungsrunde beendet
                     s.phase = ''
@@ -776,11 +796,13 @@ async def game_over(s):
         # await reset_vars(s)
         return True
     elif True in [s.player_list[x]['good'] for x in still_alive(s)] and False in [s.player_list[x]['good'] for x in still_alive(s)]:
-        if len(still_alive(s)) == 2 and s.player_list[get_player(s, 'Amor')]['loving'][0] in still_alive(s) and s.player_list[get_player(s, 'Amor')]['loving'][1] in still_alive(s):
-            #Das Liebespaar gewinnt
-            await s.bot.get_channel(GAME_TEST_CHANNEL).send(GAME_OVER + COUPLE_WON)
-            #await reset_vars(s)
-            return True
+        amor = get_player(s, 'Amor')
+        if amor:
+            if len(still_alive(s)) == 2 and s.player_list[amor]['loving'][0] in still_alive(s) and s.player_list[amor]['loving'][1] in still_alive(s):
+                #Das Liebespaar gewinnt
+                await s.bot.get_channel(GAME_TEST_CHANNEL).send(GAME_OVER + COUPLE_WON)
+                #await reset_vars(s)
+                return True
     elif True not in [s.player_list[x]['good'] for x in still_alive(s)]:
         # Die Dorfbewohner haben verloren
         if len(still_alive(s)) == 1 and s.player_list[get_player(s, 'Weißer Werwolf')] in still_alive(s):

@@ -35,6 +35,7 @@
     "lives": 1,
     "alive": 1,
     "voted for": null,
+    "citizen": null,
     "role model": "",
     "description": "Das wilde Kind ist ein Dorfbewohner. In der ersten Nacht wählt es still sein Vorbild unter den anderen Spielern. Wird dieser im Laufe des Spiels eliminiert, so kehrt das wilde Kind dem Dorf den Rücken und geht zu den Wölfen zurück. Von nun an erwacht es jede Nacht bis zum Ende der Partie als Werwolf und sucht sich mit ihnen ein Opfer.\nSolange das Vorbild am Leben ist, bleibt das wilde Kind ein Dorfbewohner. Selbst ein Werwolf als Vorbild ändert daran nichts. Ebenso kann das wilde Kind sich daran beteiligen, sein Vorbild zu eliminieren - sofern es dies wünscht.\nDas wilde Kind gewinnt mit den Dorfbewohnern, wenn sein Vorbild noch im Spiel ist und alle Werwölfe ausgeschieden sind. Ist sein Vorbild ausgeschieden und die Werwölfe gewinnen, teilt es den Sieg der Werwölfe."
   },
