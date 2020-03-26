@@ -52,14 +52,13 @@ class Werwolf(commands.Cog):
         self.playing = True
         for i in range(len(self.current_roles) - 2):
             role = self.current_roles[i] = ' '.join([part.capitalize() for part in self.current_roles[i].split(' ')])
-            role_info = self.ww_roles[role]
+            role_info = self.ww_roles[role].copy()
             role_info['role'] = role
 
             self.player_list[ctx.message.author] = role_info
             del self.player_list[ctx.message.author]['wake up']
             del self.player_list[ctx.message.author]['description']
             print(self.player_list)
-        await ctx.message.author.send('<#' + str(WERWOELFE_TEST_CHANNEL) + '>')
         await wake_thief(self)
 
     @commands.command(pass_context=True,
