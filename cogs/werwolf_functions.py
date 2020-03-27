@@ -29,9 +29,10 @@ async def distribute_roles(s):
     for i, player in enumerate(s.ready_list):
         role = s.current_roles[i]# = ' '.join(map(lambda part: part.capitalize(), s.current_roles[i].split(' ')))
         role_info = s.ww_roles[role].copy()
-        role_info['role'] = role
+        role_info['role'] = role.copy()
 
-        s.player_list[player] = role_info
+        s.player_list[player] = role_info.copy()
+        print(s.player_list[player])
         del s.player_list[player]['wake up']
         del s.player_list[player]['description']
 
@@ -531,7 +532,7 @@ async def choosing_white_werewolf(s, msg):
         await msg.author.send(NOT_UNDERSTAND + WHITE_WEREWOLF_INPUT)
 
 async def wake_witch(s):
-    await s.bot.get_channel(PLAYING_GAME_CHANNEL).send('Die Hexe wacht durch die Geräusche auf, die die Werwölfe verursacht haben. Sie sieht sich im Dorf um.')
+    await s.bot.get_channel(PLAYING_GAME_CHANNEL).send('Die **Hexe** wacht durch die Geräusche auf, die die Werwölfe verursacht haben. Sie sieht sich im Dorf um.')
     witch = get_player(s, 'Hexe')
     if not witch:
         # Kein Spieler ist die Hexe
@@ -601,6 +602,7 @@ async def choosing_witch_kill(s, msg):
     if msg.content.lower().strip() == 'nein':
         # Sie will niemanden vergiften
         s.phase = ''
+        await msg.author.send('Du willst niemanden vergiftet und gehst wieder schlafen.')
         await s.bot.get_channel(PLAYING_GAME_CHANNEL).send(WITCH_FINISHED)
         await daytime(s)
         return
@@ -749,6 +751,7 @@ async def voting(s, msg):
                 if amor:
                     if msg.author in s.player_list[amor]['loving'] and chosen in s.player_list[amor]['loving']:
                         # Wenn jemand gegen seinen Liebespartner stimmen will, halte ihn davon ab
+                        await msg.delete()
                         await msg.author.send('Du kannst doch nicht gegen deinen Liebespartner stimmen! 💔')
                         return
                 s.player_list[msg.author]['voted for'] = chosen

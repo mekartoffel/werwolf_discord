@@ -6,7 +6,7 @@ INPUT_MORE = 'Benutze dafür bitte den __globalen oder Servernamen der Personen_
 THIEF_FINISHED = 'Der Dieb hat eine Identität gestohlen und geht zufrieden schlafen.'
 
 AMOR_INPUT = 'Wen möchtest du mit deinen Liebespfeilen abschießen? ' + INPUT_MORE
-AMOR_FINISHED = 'Amor hat sich zwei Personen ausgesucht, die sich ineinander verlieben sollen und geht in Ruhe schlafen.'
+AMOR_FINISHED = '**Amor** hat sich zwei Personen ausgesucht, die sich ineinander verlieben sollen und geht in Ruhe schlafen.'
 
 WILD_CHILD_INPUT = 'Wer soll dein Vorbild sein? ' + INPUT_ONE
 WILD_CHILD_FINISHED = 'Das **wilde Kind** hat sich ein Vorbild ausgesucht und geht wieder schlafen.'
@@ -32,7 +32,7 @@ HUNTER_INPUT = ', wen möchtest du als letzte Tat noch mit dir in den Tod reiße
 
 OLD_MAN_DIED = ' den **alten Mann** getötet! Aus Verzweiflung, einen solch hochgelehrten Mann verloren zu getötet zu haben, verlieren alle Dorfbewohner ihre besonderen Fähigkeiten. *Alle sind nun gewöhnliche Dorfbewohner*.'
 
-GAME_OVER = '*Das Spiel ist beendet! *'
+GAME_OVER = '*Das Spiel ist beendet!* '
 BAD_WON = 'Die **Werwölfe** haben gewonnen! '
 GOOD_WON = 'Die **Dorfbewohner** haben gewonnen! '
 COUPLE_WON = 'Das **Liebespaar** hat gewonnen! '

@@ -19,3 +19,8 @@
 
 TODO: Nachrichten kommen doppelt? Hexe, neuer Tag, Werwolf Willkommen
 TODO: Wer hat noch nicht abgestimmt?
+TODO: nickname eingeben geht nicht?
+TODO: reset geht nicht richtig?
+TODO: Wie gibt man ein bei Jäger?
+TODO: Was passiert, wenn Werwolf gar nicht abstimmen kann? -- Enthaltung?
+TODO: Immer dazusagen, wenn kein @

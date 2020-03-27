@@ -33,7 +33,6 @@ class Werwolf(commands.Cog):
     role_list = list(ww_roles.keys())
 
     games = {v:Game(v, k['game channel'], k['werewolf channel']) for v,k in server_dict.copy().items()}
-    print(games)
 
     PLAYER_MIN = 1
     ready_list = []
@@ -51,6 +50,7 @@ class Werwolf(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        print(self.games)
 
 
     @commands.command(pass_context=True,
