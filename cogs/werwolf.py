@@ -167,7 +167,20 @@ class Werwolf(commands.Cog):
         if self.playing:
             await ctx.send('Es leben noch:\n' + '\n'.join([player.mention for player in self.player_list if is_alive(self, player.id)]))
         else:
-            await ctx.send('Es kann keiner tot sein, wenn niemand spielt. :)')
+            await ctx.send('Darüber kann ich dir keine Auskunft geben, wenn niemand spielt. :)')
+
+    @commands.command(pass_context=True,
+                      description='Liste von Spielern, die noch nicht abgestimmt haben.',
+                      brief='Liste von Spielern, die noch nicht abgestimmt haben.')
+    @commands.check(is_game_channel)
+    async def missing_vote(self, ctx):
+        if self.playing and self.phase == 'VOTING':
+            await ctx.send('Noch nicht abgestimmt haben:\n' + '\n'.join(
+                [player.mention for player in self.player_list if is_alive(self, player.id) and self.player_list[player]['voted for']]))
+        elif not self.playing:
+            await ctx.send('Darüber kann ich dir keine Auskunft geben, wenn niemand spielt. :)')
+        else:
+            await ctx.send('Es wird gerade gar nicht abgestimmt. :)')
 
     @commands.command(pass_context=True,
                       hidden=True,

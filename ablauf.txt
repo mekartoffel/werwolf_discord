@@ -6,9 +6,8 @@
 - Rollenverteilung: Jeder Spieler erhält eine Rolle und bekommt einen Dict-Eintrag
 
 - Spiel:
-  Es funktioniert: Seherin, Hexe, Dieb, Werwolf, heiler, jäger, alter mann
+  Es funktioniert: Seherin, Hexe, Dieb, Werwolf, heiler, jäger, alter mann, amor
   noch zu testen:
-  - Amor
   - Heiler (zwei mal hintereinander die gleiche person)
   - weißer WErwolf
   - dorfdepp
@@ -18,5 +17,4 @@
 
 
 TODO: Nachrichten kommen doppelt? Hexe, neuer Tag, Werwolf Willkommen
-TODO: Wer hat noch nicht abgestimmt?
 TODO: reset geht nicht richtig?
