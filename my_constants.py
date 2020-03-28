@@ -1,7 +1,7 @@
 NOT_UNDERSTAND = 'Ich verstehe deine Eingabe nicht.\n'
 NOT_ALIVE = 'Die Person lebt leider nicht mehr...\n'
-INPUT_ONE = 'Benutze dafür bitte den __globalen oder Servernamen der Person.__'
-INPUT_MORE = 'Benutze dafür bitte den __globalen oder Servernamen der Personen__ und trenne mit einem *Komma*.'
+INPUT_ONE = 'Benutze dafür bitte den __globalen oder Servernamen der Person (ohne `@`).__'
+INPUT_MORE = 'Benutze dafür bitte den __globalen oder Servernamen der Personen (ohne `@`)__ und trenne mit einem *Komma*.'
 
 THIEF_FINISHED = 'Der Dieb hat eine Identität gestohlen und geht zufrieden schlafen.'
 
@@ -28,7 +28,7 @@ WITCH_INPUT_KILL = 'Möchtest du noch jemanden mit deinem Gifttrank vergiften? '
 WITCH_FINISHED = 'Die **Hexe** hat eventuell einen oder beide ihrer Tränke verwendet und geht wieder schlafen.'
 
 HUNTER_DIED = 'Der Jäger ist gestorben. '
-HUNTER_INPUT = ', wen möchtest du als letzte Tat noch mit dir in den Tod reißen? '
+HUNTER_INPUT = ', wen möchtest du als letzte Tat noch mit dir in den Tod reißen? ' + INPUT_ONE
 
 OLD_MAN_DIED = ' den **alten Mann** getötet! Aus Verzweiflung, einen solch hochgelehrten Mann verloren zu getötet zu haben, verlieren alle Dorfbewohner ihre besonderen Fähigkeiten. *Alle sind nun gewöhnliche Dorfbewohner*.'
 

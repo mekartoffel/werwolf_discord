@@ -425,6 +425,7 @@ async def choosing_werewolves(s, msg):
             if amor:
                 if msg.author in s.player_list[amor]['loving'] and citizen in s.player_list[amor]['loving']:
                     #Wenn ein Werwolf seinen Liebespartner fressen will, halte ihn davon ab
+                    await msg.delete()
                     await msg.author.send('Du kannst deinen Liebespartner doch nicht fressen! 💔')
                     return
             s.player_list[msg.author]['citizen'] = citizen
