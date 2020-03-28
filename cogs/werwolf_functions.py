@@ -415,6 +415,10 @@ async def wake_werewolves(s):
     # Warte auf Antwort von den Werwölfen
 
 async def choosing_werewolves(s, msg):
+    if 'enthaltung' in msg.content.lower():
+        s.player_list[msg.author]['citizen'] = {'name': 'Enthaltung', 'discriminator': '0000'}
+        await s.bot.get_channel(PLAYING_WEREWOLVES_CHANNEL).send(msg.author.mention + ' ist es egal.')
+        return
     citizen = get_player_by_name(s, msg.content.strip())
     print(citizen)
     if citizen in s.player_list.keys():

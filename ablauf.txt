@@ -20,4 +20,3 @@
 TODO: Nachrichten kommen doppelt? Hexe, neuer Tag, Werwolf Willkommen
 TODO: Wer hat noch nicht abgestimmt?
 TODO: reset geht nicht richtig?
-TODO: Was passiert, wenn Werwolf gar nicht abstimmen kann? -- Enthaltung?
