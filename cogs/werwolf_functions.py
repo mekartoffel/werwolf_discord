@@ -18,7 +18,7 @@ def is_game_channel(ctx):
     """
     return ctx.message.channel.id in game_channel_list
 
-async def distribute_roles(s):
+async def distribute_roles(s, ww_roles):
     """Distribute roles and start the game.
 
     Keyword arguments:
@@ -28,7 +28,7 @@ async def distribute_roles(s):
     shuffle(s.current_roles)
     for i, player in enumerate(s.ready_list):
         role = s.current_roles[i]# = ' '.join(map(lambda part: part.capitalize(), s.current_roles[i].split(' ')))
-        role_info = s.ww_roles[role].copy()
+        role_info = ww_roles[role].copy()
         role_info['role'] = role
 
         s.player_list[player] = role_info
@@ -46,7 +46,7 @@ async def distribute_roles(s):
     await first_night(s)
 
 
-def correct_roles(s):
+def correct_roles(s, role_list):
     """Check if the roles can be mapped to the roles in `werwolf_rollen.json`. If there is no werewolf then the function returns `False`. Also checks if there are enough roles.
 
     Keyword arguments:
@@ -56,7 +56,7 @@ def correct_roles(s):
     if 'werwolf' not in roles:
         print('kein werwolf')
         return False
-    elif False in [r in [role.lower() for role in s.role_list] for r in roles]:
+    elif False in [r in [role.lower() for role in role_list] for r in roles]:
         print('kein richtiger')
         return False
     if 'dieb' in roles:
@@ -227,7 +227,7 @@ async def wake_thief(s):
         s.phase = "THIEF"
         # Warte auf Antwort vom Dieb
 
-async def choosing_thief(s, msg):
+async def choosing_thief(s, msg, ww_roles):
     for role in s.current_roles[-2:]:
         if msg.content.lower().strip() == role.lower():
             print(msg.content)
@@ -239,7 +239,7 @@ async def choosing_thief(s, msg):
             s.current_roles[role_index] = 'Dieb'
             print(s.current_roles)
             #Weise dem Spieler die neue Rolle zu
-            role_info = s.ww_roles[role].copy()
+            role_info = ww_roles[role].copy()
             role_info['role'] = role
             s.player_list[msg.author] = role_info
             del s.player_list[msg.author]['wake up']

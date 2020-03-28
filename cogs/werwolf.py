@@ -5,23 +5,25 @@ from cogs.werwolf_functions import *
 from typing import Dict
 
 class Game():
-    ready_list = []
-    player_list = {}
-    current_roles = []
-    died = [None, None, None]  # [von werwölfen, von weißer werwolf, von hexe]
-    new_vote = False
 
-    playerID = None  # welcher Spieler hat das Spiel gestartet?
-    playing = False  # läuft ein Spiel?
-    phase = ''  # Was passiert gerade?
-
-    game_status: Dict[str, bool] = {'waiting for selection': False, 'selecting': False, 'playing': False}
-    round_no = 1
-
-    def __init__(self, server_id, game_channel, werewolf_channel):
+    def __init__(self, server_id, game_channel, werewolf_channel, bot):
+        self.bot = bot
         self.server_id = server_id
         self.game_channel = game_channel
         self.werewolf_channel = werewolf_channel
+
+        self.ready_list = []
+        self.player_list = {}
+        self.current_roles = []
+        self.died = [None, None, None] # [von werwölfen, von weißer werwolf, von hexe]
+        self.new_vote = False
+
+        self.playerID = None  # welcher Spieler hat das Spiel gestartet?
+        self.playing = False  # läuft ein Spiel?
+        self.phase = ''  # Was passiert gerade?
+
+        self.game_status: Dict[str, bool] = {'waiting for selection': False, 'selecting': False, 'playing': False}
+        self.round_no = 1
 
 
 class Werwolf(commands.Cog):
@@ -32,25 +34,23 @@ class Werwolf(commands.Cog):
 
     role_list = list(ww_roles.keys())
 
-    games = {v:Game(v, k['game channel'], k['werewolf channel']) for v,k in server_dict.copy().items()}
-
     PLAYER_MIN = 1
-    ready_list = []
-    player_list = {}
-    current_roles = []
-    died = [None, None, None]  # [von werwölfen, von weißer werwolf, von hexe]
-    new_vote = False
+    global_playerlist = []
+    #player_list = {}
+    #current_roles = []
+    #died = [None, None, None]  # [von werwölfen, von weißer werwolf, von hexe]
+    #new_vote = False
 
-    playerID = None  # welcher Spieler hat das Spiel gestartet?
-    playing = False  # läuft ein Spiel?
-    phase = ''  # Was passiert gerade?
+    #playerID = None  # welcher Spieler hat das Spiel gestartet?
+    #playing = False  # läuft ein Spiel?
+    #phase = ''  # Was passiert gerade?
 
-    game_status: Dict[str, bool] = {'waiting for selection': False, 'selecting': False, 'playing': False}
-    round_no = 1
+    #game_status: Dict[str, bool] = {'waiting for selection': False, 'selecting': False, 'playing': False}
+    #round_no = 1
 
     def __init__(self, bot):
         self.bot = bot
-        print(self.games)
+        self.games = {v: Game(v, k['game channel'], k['werewolf channel'], bot) for v, k in server_dict.copy().items()}
 
 
     @commands.command(pass_context=True,
@@ -65,18 +65,19 @@ class Werwolf(commands.Cog):
                       description='TEST',
                       brief='TEST')
     async def test(self, ctx):
-        self.current_roles = ['Dieb', 'Hexe', 'Seherin']
-        self.playing = True
-        for i in range(len(self.current_roles) - 2):
-            role = self.current_roles[i] = ' '.join([part.capitalize() for part in self.current_roles[i].split(' ')])
+        game: Game = self.games[ctx.guild.id]
+        game.current_roles = ['Dieb', 'Hexe', 'Seherin']
+        game.playing = True
+        for i in range(len(game.current_roles) - 2):
+            role = game.current_roles[i] = ' '.join([part.capitalize() for part in game.current_roles[i].split(' ')])
             role_info = self.ww_roles[role].copy()
             role_info['role'] = role
 
-            self.player_list[ctx.message.author] = role_info
-            del self.player_list[ctx.message.author]['wake up']
-            del self.player_list[ctx.message.author]['description']
-            print(self.player_list)
-        await wake_thief(self)
+            game.player_list[ctx.message.author] = role_info
+            del game.player_list[ctx.message.author]['wake up']
+            del game.player_list[ctx.message.author]['description']
+            print(game.player_list)
+        await wake_thief(game)
 
     @commands.command(pass_context=True,
                       description='Beschreibung der verschiedenen Rollen.',
@@ -99,27 +100,36 @@ class Werwolf(commands.Cog):
                       brief='Bereit für Werwolf.')
     @commands.check(is_game_channel)
     async def ready(self, ctx):
-        if ctx.message.author not in self.ready_list and not self.playing:
-            self.ready_list.append(ctx.message.author)
-            print(self.ready_list)
+        print(ctx.guild.id)
+        game: Game = self.games[ctx.guild.id]
+        if ctx.message.author not in self.global_playerlist and ctx.message.author not in game.ready_list and not game.playing:
+            self.global_playerlist.append(ctx.message.author)
+            print(self.global_playerlist)
+            game.ready_list.append(ctx.message.author)
+            print(game.ready_list)
             await ctx.message.delete()
             await ctx.send(ctx.message.author.mention + ' ist bereit!')
-        elif self.playing:
-            await ctx.send('Es findet gerade ein Spiel statt. Du kannst danach mitspielen.')
-        else:
+        elif game.playing:
+            await ctx.send('Es findet gerade ein Spiel statt. Du kannst danach mitspielen. :)')
+        elif ctx.message.author in game.ready_list:
             await ctx.send('Du bist schon bereit.')
+        else:
+            await ctx.send('Du bist schon in einem anderen Server dabei.')
 
     @commands.command(pass_context=True,
                       description='Nicht mehr bereit für Werwolf.',
                       brief='Nicht mehr bereit für Werwolf.')
     @commands.check(is_game_channel)
     async def unready(self, ctx):
-        if ctx.message.author in self.ready_list and not self.playing:
-            self.ready_list.remove(ctx.message.author)
+        game: Game = self.games[ctx.guild.id]
+        if ctx.message.author in self.global_playerlist and ctx.message.author in game.ready_list and not game.playing:
+            self.global_playerlist.remove(ctx.message.author)
+            game.ready_list.remove(ctx.message.author)
+            print(game.ready_list)
             await ctx.message.delete()
             await ctx.send(ctx.message.author.mention + ' ist nicht mehr bereit!')
-        elif self.playing:
-            await ctx.send('Das Spiel läuft schon. Du musst gar nicht bereit sein, spiel einfach mit! :)')
+        elif game.playing:
+            await ctx.send('Das Spiel läuft schon. Du musst gar nicht bereit sein, spiel einfach mit! ~~(Und lass dich im Zweifel umbringen, dann musst du nicht mehr mitspielen.)~~')
         else:
             await ctx.send('Du warst eh nicht bereit.')
 
@@ -128,8 +138,9 @@ class Werwolf(commands.Cog):
                       brief='Liste von Spielern, die bereit sind.')
     @commands.check(is_game_channel)
     async def readylist(self, ctx):
-        if self.ready_list:
-            await ctx.send('Bereit sind:\n' + '\n'.join([player.mention for player in self.ready_list]))
+        game: Game = self.games[ctx.guild.id]
+        if game.ready_list:
+            await ctx.send('Bereit sind:\n' + '\n'.join([player.mention for player in game.ready_list]))
         else:
             await ctx.send('Es ist noch keiner bereit.')
 
@@ -138,34 +149,36 @@ class Werwolf(commands.Cog):
                       brief='Starte Werwolf.')
     @commands.check(is_game_channel)
     async def start(self, ctx):
+        game: Game = self.games[ctx.guild.id]
         player = ctx.message.author
-        if player not in self.ready_list:
+        if player not in game.ready_list:
             # Der Starter muss auch in der ready_list sein
-            self.ready_list.append(player)
+            self.global_playerlist.append(player)
+            game.ready_list.append(player)
             await ctx.send(player.mention + ' ist bereit!')
-        if len(self.ready_list) >= self.PLAYER_MIN:
+        if len(game.ready_list) >= self.PLAYER_MIN:
             # Starte das Spiel nur, wenn genügend Spieler bereit sind
             other_players = ''
-            for s in self.ready_list:
+            for s in game.ready_list:
                 other_players = other_players + '\n' + s.mention
-            self.playerID = player.id
-            print(still_alive(self))
-            await ctx.send(
-                player.mention + ' hat das Spiel gestartet und wählt somit, welche Rollen dabei sind. Mitspieler sind:' + other_players)
-            await ctx.send(player.mention + ', gib ' + str(len(self.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Trenne mit einem Komma, z.B. \"Rolle1, Rolle2, Rolle3\"')
-            self.playing = True
-            self.game_status['waiting for selection'] = True
-            self.phase = 'SELECTION'
+            game.playerID = player.id
+            print(still_alive(game))
+            await ctx.send(player.mention + ' hat das Spiel gestartet und wählt somit, welche Rollen dabei sind. Mitspieler sind:' + other_players)
+            await ctx.send(player.mention + ', gib ' + str(len(game.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Trenne mit einem Komma, z.B. \"Rolle1, Rolle2, Rolle3\"')
+            game.playing = True
+            game.game_status['waiting for selection'] = True
+            game.phase = 'SELECTION'
         else:
-            await ctx.send('Es sind noch nicht genügend Spieler. Es sollte(n) noch mindestens ' + str(self.PLAYER_MIN - len(self.ready_list)) + ' Spieler dazukommen.')
+            await ctx.send('Es sind noch nicht genügend Spieler. Es sollte(n) noch mindestens ' + str(self.PLAYER_MIN - len(game.ready_list)) + ' Spieler dazukommen.')
 
     @commands.command(pass_context=True,
                       description='Liste von Spielern, die noch am Leben sind.',
                       brief='Liste von Spielern, die noch am Leben sind.')
     @commands.check(is_game_channel)
     async def alive(self, ctx):
-        if self.playing:
-            await ctx.send('Es leben noch:\n' + '\n'.join([player.mention for player in self.player_list if is_alive(self, player.id)]))
+        game: Game = self.games[ctx.guild.id]
+        if game.playing:
+            await ctx.send('Es leben noch:\n' + '\n'.join([player.mention for player in game.player_list if is_alive(game, player.id)]))
         else:
             await ctx.send('Darüber kann ich dir keine Auskunft geben, wenn niemand spielt. :)')
 
@@ -174,10 +187,11 @@ class Werwolf(commands.Cog):
                       brief='Liste von Spielern, die noch nicht abgestimmt haben.')
     @commands.check(is_game_channel)
     async def missing_vote(self, ctx):
-        if self.playing and self.phase == 'VOTING':
+        game: Game = self.games[ctx.guild.id]
+        if game.playing and game.phase == 'VOTING':
             await ctx.send('Noch nicht abgestimmt haben:\n' + '\n'.join(
-                [player.mention for player in self.player_list if is_alive(self, player.id) and self.player_list[player]['voted for']]))
-        elif not self.playing:
+                [player.mention for player in game.player_list if is_alive(game, player.id) and game.player_list[player]['voted for']]))
+        elif not game.playing:
             await ctx.send('Darüber kann ich dir keine Auskunft geben, wenn niemand spielt. :)')
         else:
             await ctx.send('Es wird gerade gar nicht abgestimmt. :)')
@@ -188,8 +202,9 @@ class Werwolf(commands.Cog):
                       brief='Setzt die Ready-Liste für Werwolf zurück.')
     @commands.is_owner()
     async def reset(self, ctx):
-        if not self.playing:
-            self.ready_list = []
+        game: Game = self.games[ctx.guild.id]
+        if not game.playing:
+            game.ready_list = []
             await ctx.send('Die Bereit-Liste wurde zurückgesetzt. Sie ist nun wieder leer.')
 
     @commands.command(pass_context=True,
@@ -198,74 +213,83 @@ class Werwolf(commands.Cog):
                       brief='Setzt die Ready-Liste für Werwolf zurück.')
     @commands.is_owner()
     async def reset_game(self, ctx):
-        if self.playing:
-            await reset_vars(self)
+        game: Game = self.games[ctx.guild.id]
+        if game.playing:
+            await reset_vars(game)
+            self.global_playerlist.remove(ctx.message.author)
             await ctx.send('Das Spiel wurde zurückgesetzt.')
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        try:
+            player = message.author
+            server_id = [server_id for server_id in self.games.keys() if player in self.games[server_id].ready_list][0]
+            game: Game = self.games[server_id]
+        except IndexError:
+            return
+
         if message.author == self.bot.user:
             return
 
-        elif self.playing:
-            print(self.phase)
+        elif game.playing:
+            print(game.phase)
             if message.channel.id in game_channel_list:
-                if  message.author.id == self.playerID and self.phase == "SELECTION":
-                    if self.game_status['waiting for selection']:
-                        self.current_roles = [r.strip() for r in message.content.split(',')]
-                        self.current_roles = [' '.join([part.capitalize() for part in r.split(' ')]) for r in self.current_roles]
-                        print('Rollen: ' + str(self.current_roles))
-                        if not correct_roles(self):
-                            await message.channel.send('Da stimmt etwas nicht. Gib ' + str(len(self.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Vergiss die Werwölfe nicht!')
+                if  message.author.id == game.playerID and game.phase == "SELECTION":
+                    if game.game_status['waiting for selection']:
+                        game.current_roles = [r.strip() for r in message.content.split(',')]
+                        game.current_roles = [' '.join([part.capitalize() for part in r.split(' ')]) for r in game.current_roles]
+                        print('Rollen: ' + str(game.current_roles))
+                        if not correct_roles(game, self.role_list):
+                            await message.channel.send('Da stimmt etwas nicht. Gib ' + str(len(game.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Vergiss die Werwölfe nicht!')
                         else:
-                            role_string = '\n'.join(self.current_roles)
+                            role_string = '\n'.join(game.current_roles)
                             await message.channel.send('Die Rollen sind also \n' + role_string + '\nIst das so richtig?')
-                            self.game_status['waiting for selection'] = False
-                            self.game_status['selecting'] = True
-                    elif self.game_status['selecting']:
+                            game.game_status['waiting for selection'] = False
+                            game.game_status['selecting'] = True
+                    elif game.game_status['selecting']:
                         if message.content.lower().strip() == 'ja':
                             await message.channel.send('Okay, dann verteile ich jetzt die Rollen.')
                             # Schicke Rolle an jeden Spieler einzeln, nachdem die Rollen verteilt wurden
-                            await distribute_roles(self)
+                            await distribute_roles(game, self.ww_roles)
                         elif message.content.lower().strip() == 'nein':
                             await message.channel.send('Gib die Rollen noch einmal ein. Trenne mit einem Komma.')
-                            self.game_status['waiting for selection'] = True
-                            self.game_status['selecting'] = False
-                elif message.author == get_player(self, 'Jäger') and (self.phase == "HUNTER_NIGHT" or self.phase == "HUNTER_VOTE"):
-                    await choosing_hunter(self, message)
-                elif self.phase == "VOTING":
-                    await voting(self, message)
+                            game.game_status['waiting for selection'] = True
+                            game.game_status['selecting'] = False
+                elif message.author == get_player(game, 'Jäger') and (game.phase == "HUNTER_NIGHT" or game.phase == "HUNTER_VOTE"):
+                    await choosing_hunter(game, message)
+                elif game.phase == "VOTING":
+                    await voting(game, message)
 
             if isinstance(message.channel, discord.DMChannel):
-                if message.author == get_player(self, 'Dieb') and self.phase == "THIEF":
-                    await choosing_thief(self, message)
-                elif message.author == get_player(self, 'Amor') and self.phase == "AMOR":
-                    await choosing_amor(self, message)
-                elif message.author == get_player(self, 'Wildes Kind') and self.phase == "WILD CHILD":
-                    await choosing_wild_child(self, message)
-                elif message.author == get_player(self, 'Heiler') and self.phase == "HEALER":
-                    await choosing_healer(self, message)
-                elif message.author == get_player(self, 'Seherin') and self.phase == "SEER":
-                    await choosing_seer(self, message)
-                elif message.author == get_player(self, 'Stotternder Richter') and self.phase == "VOTING" and 'ABSTIMMUNG' in message.content:
-                    if self.player_list[message.author]['new vote']:
-                        self.new_vote = True
-                        self.player_list[message.author]['new vote'] = 0
+                if message.author == get_player(game, 'Dieb') and game.phase == "THIEF":
+                    await choosing_thief(game, message, self.ww_roles)
+                elif message.author == get_player(self, 'Amor') and game.phase == "AMOR":
+                    await choosing_amor(game, message)
+                elif message.author == get_player(game, 'Wildes Kind') and game.phase == "WILD CHILD":
+                    await choosing_wild_child(game, message)
+                elif message.author == get_player(game, 'Heiler') and game.phase == "HEALER":
+                    await choosing_healer(game, message)
+                elif message.author == get_player(game, 'Seherin') and game.phase == "SEER":
+                    await choosing_seer(game, message)
+                elif message.author == get_player(game, 'Stotternder Richter') and game.phase == "VOTING" and 'ABSTIMMUNG' in message.content:
+                    if game.player_list[message.author]['new vote']:
+                        game.new_vote = True
+                        game.player_list[message.author]['new vote'] = 0
                         message.author.send('Okay, es wird eine zweite Abstimmung geben.')
                 #Werewolves
-                elif message.author == get_player(self, 'Weißer Werwolf') and self.phase == "WHITE_WEREWOLF":
-                    await choosing_white_werewolf(self, message)
-                elif message.author == get_player(self, 'Hexe'):
-                    if self.phase == "WITCH_HEAL":
-                        await choosing_witch_heal(self, message)
-                    elif self.phase == "WITCH_DEATH":
-                        await choosing_witch_kill(self, message)
+                elif message.author == get_player(game, 'Weißer Werwolf') and game.phase == "WHITE_WEREWOLF":
+                    await choosing_white_werewolf(game, message)
+                elif message.author == get_player(game, 'Hexe'):
+                    if game.phase == "WITCH_HEAL":
+                        await choosing_witch_heal(game, message)
+                    elif game.phase == "WITCH_DEATH":
+                        await choosing_witch_kill(game, message)
             elif message.channel.id == PLAYING_WEREWOLVES_CHANNEL:
-                if is_bad(self, message.author.id):
-                    if self.phase == "WEREWOLVES":
-                        await choosing_werewolves(self, message)
-                    elif self.phase == "WEREWOLVES_VALIDATING":
-                        await confirming_werewolves(self, message)
+                if is_bad(game, message.author.id):
+                    if game.phase == "WEREWOLVES":
+                        await choosing_werewolves(game, message)
+                    elif game.phase == "WEREWOLVES_VALIDATING":
+                        await confirming_werewolves(game, message)
             
 
 
