@@ -109,7 +109,7 @@ def get_player_by_name(s, player_name):
     """
     player = discord.utils.find(lambda m: player_name.lower() in m.name.lower() , s.bot.get_guild(PLAYING_SERVER).members)
     if not player:
-        player = discord.utils.find(lambda m: player_name.lower() in m.name.lower() , s.bot.get_guild(PLAYING_SERVER).members)
+        player = discord.utils.find(lambda m: player_name.lower() in m.nick.lower() if m.nick else False, s.bot.get_guild(PLAYING_SERVER).members)
     return player
 
 def is_alive(s, player_id):
