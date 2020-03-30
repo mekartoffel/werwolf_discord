@@ -284,7 +284,7 @@ class Werwolf(commands.Cog):
                         await choosing_witch_heal(game, message)
                     elif game.phase == "WITCH_DEATH":
                         await choosing_witch_kill(game, message)
-            elif message.channel.id == PLAYING_WEREWOLVES_CHANNEL:
+            elif message.channel.id == game.werewolf_channel:
                 if is_bad(game, message.author.id):
                     if game.phase == "WEREWOLVES":
                         await choosing_werewolves(game, message)
