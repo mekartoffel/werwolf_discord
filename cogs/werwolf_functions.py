@@ -417,7 +417,7 @@ async def wake_werewolves(s):
     # Warte auf Antwort von den Werwölfen
 
 async def choosing_werewolves(s, msg):
-    if 'enthaltung' in msg.content.lower():
+    if 'enthaltung' in msg.content.lower() and is_alive(s, msg.author.id):
         s.player_list[msg.author]['citizen'] = {'name': 'Enthaltung', 'discriminator': '0000'}
         await s.bot.get_channel(s.werewolf_channel).send(msg.author.mention + ' ist es egal.')
         return
@@ -425,7 +425,7 @@ async def choosing_werewolves(s, msg):
     print(citizen)
     if citizen in s.player_list.keys():
         # Wen wollen die Werwölfe fressen?
-        if not is_bad(s, citizen.id) and is_alive(s, citizen.id):
+        if not is_bad(s, citizen.id) and is_alive(s, citizen.id) and is_alive(s, msg.author.id):
             # Ist diese Person überhaupt ein Dorfbewohner? Und lebt sie noch?
             amor = get_player(s, 'Amor')
             if amor:
@@ -445,6 +445,8 @@ async def choosing_werewolves(s, msg):
                 s.died[0] = max(dict(Counter(citizens)).items(), key=operator.itemgetter(1))[0]
                 await s.bot.get_channel(s.werewolf_channel).send('Wollt ihr folgende Person fressen: ' + get_name_discriminator(s.died[0]) + '? (Es reicht, wenn einer von euch \"Ja\" bzw. \"Nein\" antwortet, sprecht euch also ab!)')
                 s.phase = "WEREWOLVES_VALIDATING"
+        elif not is_alive(s, msg.author.id):
+            await s.bot.get_channel(s.werewolf_channel).send(msg.author.mention + ', du darfst gar nicht mehr wählen.')
         else:
             await s.bot.get_channel(s.werewolf_channel).send(msg.author.mention + ', diesen Spieler kannst du nicht wählen.')
     # Wenn es eine komische Nachricht ist, dann diskutieren sie wahrscheinlich
@@ -858,6 +860,7 @@ def substract_lives(s):
 
 async def game_over(s):
     print(s.player_list)
+    print(still_alive(s))
     if not still_alive(s):
         # Alle sind tot
         await s.bot.get_channel(s.game_channel).send(GAME_OVER + NOONE_WON)

@@ -6,15 +6,12 @@
 - Rollenverteilung: Jeder Spieler erhält eine Rolle und bekommt einen Dict-Eintrag
 
 - Spiel:
-  Es funktioniert: Seherin, Hexe, Dieb, Werwolf, heiler, jäger, alter mann, amor
+  Es funktioniert: Seherin, Hexe, Dieb, Werwolf, heiler, jäger, alter mann, amor, dorfdepp, sündenbock
   noch zu testen:
-  - Heiler (zwei mal hintereinander die gleiche person)
-  - weißer WErwolf
-  - dorfdepp
-  - sündenbock
+  - weißer WErwolf: gewinnt irgendwie nicht?
+  - wildes kind? kann/ muss noch abstimmen?
   - richter
-  - alter mann stirbt -- bewohner verlieren ihre fähigkeiten
 
 
-TODO: Nachrichten kommen doppelt? Hexe, neuer Tag, Werwolf Willkommen
+TODO: wildes Kind stirbt, kann noch abstimmen? muss noch abstimmen?
 TODO: reset geht nicht richtig?
