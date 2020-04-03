@@ -6,7 +6,8 @@ from typing import Dict
 
 class Game():
 
-    def __init__(self, server_id, game_channel, werewolf_channel, bot):
+    def __init__(self, server_id, game_channel, werewolf_channel, bot, ww):
+        self.ww = ww
         self.bot = bot
         self.server_id = server_id
         self.game_channel = game_channel
@@ -50,7 +51,7 @@ class Werwolf(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.games = {v: Game(v, k['game channel'], k['werewolf channel'], bot) for v, k in server_dict.copy().items()}
+        self.games = {v: Game(v, k['game channel'], k['werewolf channel'], bot, self) for v, k in server_dict.copy().items()}
 
 
     @commands.command(pass_context=True,
@@ -156,7 +157,7 @@ class Werwolf(commands.Cog):
             self.global_playerlist.append(player)
             game.ready_list.append(player)
             await ctx.send(player.mention + ' ist bereit!')
-        if len(game.ready_list) >= self.PLAYER_MIN:
+        if len(game.ready_list) >= self.PLAYER_MIN and not game.playing:
             # Starte das Spiel nur, wenn genügend Spieler bereit sind
             other_players = ''
             for s in game.ready_list:
@@ -168,6 +169,8 @@ class Werwolf(commands.Cog):
             game.playing = True
             game.game_status['waiting for selection'] = True
             game.phase = 'SELECTION'
+        elif game.playing:
+            await ctx.send('Es findet gerade ein Spiel statt. Du kannst danach mitspielen. :)')
         else:
             await ctx.send('Es sind noch nicht genügend Spieler. Es sollte(n) noch mindestens ' + str(self.PLAYER_MIN - len(game.ready_list)) + ' Spieler dazukommen.')
 
@@ -190,7 +193,7 @@ class Werwolf(commands.Cog):
         game: Game = self.games[ctx.guild.id]
         if game.playing and game.phase == 'VOTING':
             await ctx.send('Noch nicht abgestimmt haben:\n' + '\n'.join(
-                [player.mention for player in game.player_list if is_alive(game, player.id) and game.player_list[player]['voted for']]))
+                [player.mention for player in game.player_list if is_alive(game, player.id) and not game.player_list[player]['voted for']]))
         elif not game.playing:
             await ctx.send('Darüber kann ich dir keine Auskunft geben, wenn niemand spielt. :)')
         else:
@@ -216,7 +219,6 @@ class Werwolf(commands.Cog):
         game: Game = self.games[ctx.guild.id]
         if game.playing:
             await reset_vars(game)
-            self.global_playerlist.remove(ctx.message.author)
             await ctx.send('Das Spiel wurde zurückgesetzt.')
 
     @commands.Cog.listener()
@@ -261,9 +263,10 @@ class Werwolf(commands.Cog):
                     await voting(game, message)
 
             if isinstance(message.channel, discord.DMChannel):
+                print(game)
                 if message.author == get_player(game, 'Dieb') and game.phase == "THIEF":
                     await choosing_thief(game, message, self.ww_roles)
-                elif message.author == get_player(self, 'Amor') and game.phase == "AMOR":
+                elif message.author == get_player(game, 'Amor') and game.phase == "AMOR":
                     await choosing_amor(game, message)
                 elif message.author == get_player(game, 'Wildes Kind') and game.phase == "WILD CHILD":
                     await choosing_wild_child(game, message)

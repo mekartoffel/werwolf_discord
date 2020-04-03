@@ -3,7 +3,7 @@ NOT_ALIVE = 'Die Person lebt leider nicht mehr...\n'
 INPUT_ONE = 'Benutze dafür bitte den __globalen oder Servernamen der Person (ohne `@`).__'
 INPUT_MORE = 'Benutze dafür bitte den __globalen oder Servernamen der Personen (ohne `@`)__ und trenne mit einem *Komma*.'
 
-THIEF_FINISHED = 'Der Dieb hat eine Identität gestohlen und geht zufrieden schlafen.'
+THIEF_FINISHED = 'Der **Dieb** hat eine Identität gestohlen und geht zufrieden schlafen.'
 
 AMOR_INPUT = 'Wen möchtest du mit deinen Liebespfeilen abschießen? ' + INPUT_MORE
 AMOR_FINISHED = '**Amor** hat sich zwei Personen ausgesucht, die sich ineinander verlieben sollen und geht in Ruhe schlafen.'

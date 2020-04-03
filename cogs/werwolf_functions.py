@@ -148,7 +148,8 @@ def werewolves_chosen(s):
     for p,v in s.player_list.items():
         if not v['good']:
             if not v['citizen']:
-                return False
+                if v['alive']:
+                    return False
     return True
 
 def citizens_chosen(s):
@@ -245,7 +246,7 @@ async def choosing_thief(s, msg, ww_roles):
             del s.player_list[msg.author]['wake up']
             del s.player_list[msg.author]['description']
             print(s.player_list)
-            #Phase ist beendet; Entscheidung, was als nächstes passiert
+            # Phase ist beendet; Entscheidung, was als nächstes passiert
             s.phase = ''
             await msg.author.send('Okay, du hast nun folgende Identität: ' + role)
             await s.bot.get_channel(s.game_channel).send(THIEF_FINISHED)
@@ -700,12 +701,13 @@ async def choosing_hunter(s, msg):
                     await s.bot.get_channel(s.game_channel).send('Der Jäger hat' + OLD_MAN_DIED)
                     old_man_died(s)
             # Phase beendet; Der Tag beginnt
-            s.phase = ''
             if s.phase == "HUNTER_NIGHT":
+                s.phase = ''
                 await good_to_wild(s)
                 await angry_mob(s)
                 return
             elif s.phase == "HUNTER_VOTE":
+                s.phase = ''
                 await after_voting(s)
                 return
         elif not is_alive(s, chosen.id):
@@ -715,7 +717,7 @@ async def choosing_hunter(s, msg):
 
 def old_man_died(s):
     for p in s.player_list:
-        if not is_bad(s, p):
+        if not is_bad(s, p.id):
             #Wenn der alte Mann stirbt, wird jeder gute Mensch zum gewöhnlichen Dorfbewohner
             s.player_list[p]['role'] = 'Dorfbewohner'
 
@@ -733,7 +735,7 @@ async def angry_mob(s):
 
 async def voting(s, msg):
     idiot = get_player(s, 'Dorfdepp')
-    if idiot:
+    if msg.author == idiot:
         if not s.player_list[idiot]['voting right']:
             # Wenn der Dorfdepp kein Stimmrecht mehr hat, dann ignorieren
             return
@@ -784,7 +786,7 @@ async def voting(s, msg):
                         if scapegoat:
                             if is_alive(s, scapegoat.id):
                                 s.player_list[scapegoat]['alive'] = 0
-                                await s.bot.get_channel(s.game_channel).send('Ihr konntet euch nicht einig werden. Deshalb muss der Sündenbock, also ' + to_die[0].mention + ' sterben.')
+                                await s.bot.get_channel(s.game_channel).send('Ihr konntet euch nicht einig werden. Deshalb muss der Sündenbock, also ' + scapegoat.mention + ' sterben.')
                                 await after_voting(s)
                                 return
                         await s.bot.get_channel(s.game_channel).send('Ihr konntet euch nicht einig werden und da es keinen Sündenbock gibt, stirbt heute niemand mehr.')
@@ -853,7 +855,6 @@ async def game_over(s):
     if not still_alive(s):
         # Alle sind tot
         await s.bot.get_channel(s.game_channel).send(GAME_OVER + NOONE_WON)
-        # await reset_vars(s)
         return True
     elif True in [s.player_list[x]['good'] for x in still_alive(s)] and False in [s.player_list[x]['good'] for x in still_alive(s)]:
         amor = get_player(s, 'Amor')
@@ -861,7 +862,6 @@ async def game_over(s):
             if len(still_alive(s)) == 2 and s.player_list[amor]['loving'][0] in still_alive(s) and s.player_list[amor]['loving'][1] in still_alive(s):
                 #Das Liebespaar gewinnt
                 await s.bot.get_channel(s.game_channel).send(GAME_OVER + COUPLE_WON)
-                #await reset_vars(s)
                 return True
     elif True not in [s.player_list[x]['good'] for x in still_alive(s)]:
         # Die Dorfbewohner haben verloren
@@ -872,17 +872,16 @@ async def game_over(s):
                     await s.bot.get_channel(s.game_channel).send(GAME_OVER + WHITE_WEREWOLF_WON)
                     return True
         await s.bot.get_channel(s.game_channel).send(GAME_OVER + BAD_WON)
-        #await reset_vars(s)
         return True
     elif False not in [s.player_list[x]['good'] for x in still_alive(s)]:
         # Die Werwölfe haben verloren
         await s.bot.get_channel(s.game_channel).send(GAME_OVER + GOOD_WON)
-        #reset_vars(s)
         return True
     return False
 
 async def reset_vars(s):
     for player in s.player_list:
+        s.ww.global_playerlist.remove(player)
         await s.bot.get_channel(s.werewolf_channel).set_permissions(player, read_messages=False, send_messages=False)
     s.ready_list = []
     s.player_list = {}

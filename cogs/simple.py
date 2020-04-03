@@ -1,9 +1,5 @@
-import discord
-import random
-import time
 import asyncio
 
-from random import randint
 from discord.ext import commands
 from discord.utils import get
 from private import *
@@ -15,22 +11,26 @@ class Allgemein(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        msg = message.content.lower()
         #Egal, von wem die Nachricht kommt, er soll reagieren
         hi = ['hallo', 'servus', 'guten tag', 'moin', 'hello', 'guten morgen', 'winke', 'hey yo']
         glitzer = ['glitter', 'glitzer', 'sparkle', 'stern', '✨']
         for word in hi:
-            if word in message.content.lower():
-                emoji = get(self.bot.emojis, id=518072805296963584)
+            if word in msg:
+                emoji = get(self.bot.emojis, id=WINKUS)
                 print(emoji)
                 await message.add_reaction(emoji)
                 break
         for word in glitzer:
-            if word in message.content.lower():
-                emoji = get(self.bot.emojis, id=524903179574575124)
+            if word in msg:
+                emoji = get(self.bot.emojis, id=SPARKLE3)
                 await message.add_reaction(emoji)
                 break
-        if 'hose' in message.content.lower():
-            emoji = get(self.bot.emojis, id=518072681837494292)
+        if 'hose' in msg:
+            emoji = get(self.bot.emojis, id=MM_HOSE)
+            await message.add_reaction(emoji)
+        if 'halo' in msg:
+            emoji = get(self.bot.emojis, id=CAUGHT_ME)
             await message.add_reaction(emoji)
         
         #print(discord.utils.find(lambda m: message.content in m.name , self.bot.get_guild(TEST_SERVER_ID).members))
@@ -59,13 +59,6 @@ class Allgemein(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await asyncio.sleep(0.5)
             await ctx.send('Was soll ich wiederholen?')
-
-
-    #Wenn jemand offline geht
-    async def on_member_update(self, before, after):
-        if str(after.status) == 'offline' or str(before.status) == 'online':
-            msg = time.strftime('%c: ') + '{} ist von {} auf {} gegangen.'.format(after.name, before.status, after.status)
-            print(msg)
 
 
     @commands.command(pass_context=True,
