@@ -17,7 +17,7 @@ HEALER_FINISHED = 'Der **Heiler** hat eine Person gefunden, die es würdig ist, 
 SEER_INPUT = 'Wen möchtest du überprüfen? ' + INPUT_ONE
 SEER_FINISHED = 'Die **Seherin** hat etwas Interessantes gesehen und geht wieder schlafen.'
 
-WEREWOLVES_INPUT = 'Wen möchtet ihr fressen? ' + INPUT_ONE + 'Wenn jemand nicht wählen will oder kann, kann er auch `Enthaltung` eingeben.\nIhr könnt euch auch vorher absprechen.'
+WEREWOLVES_INPUT = ', wen möchtet ihr fressen? ' + INPUT_ONE + 'Wenn jemand nicht wählen will oder kann, kann er auch `Enthaltung` eingeben.\nIhr könnt euch auch vorher absprechen.'
 WEREWOLVES_FINISHED = 'Die **Werwölfe** haben ihr Opfer gefunden und gehen wieder schlafen.'
 
 WHITE_WEREWOLF_INPUT = 'Wen möchtest du fressen? ' + INPUT_ONE + ' (Wenn du niemanden fressen möchtest, antworte mit `Niemanden`)'

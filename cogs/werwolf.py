@@ -245,7 +245,7 @@ class Werwolf(commands.Cog):
                             await message.channel.send('Da stimmt etwas nicht. Gib ' + str(len(game.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Vergiss die Werwölfe nicht!')
                         else:
                             role_string = '\n'.join(game.current_roles)
-                            await message.channel.send('Die Rollen sind also \n' + role_string + '\nIst das so richtig?')
+                            await message.channel.send('Die Rollen sind also \n```' + role_string + '```\nIst das so richtig?')
                             game.game_status['waiting for selection'] = False
                             game.game_status['selecting'] = True
                     elif game.game_status['selecting']:
@@ -278,7 +278,7 @@ class Werwolf(commands.Cog):
                     if game.player_list[message.author]['new vote']:
                         game.new_vote = True
                         game.player_list[message.author]['new vote'] = 0
-                        message.author.send('Okay, es wird eine zweite Abstimmung geben.')
+                        await message.author.send('Okay, es wird eine zweite Abstimmung geben.')
                 #Werewolves
                 elif message.author == get_player(game, 'Weißer Werwolf') and game.phase == "WHITE_WEREWOLF":
                     await choosing_white_werewolf(game, message)

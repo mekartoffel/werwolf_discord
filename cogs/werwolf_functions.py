@@ -411,7 +411,8 @@ async def choosing_seer(s, msg):
 
 async def wake_werewolves(s):
     await s.bot.get_channel(s.game_channel).send('Die **Werwölfe** wachen auf und haben richtig Hunger. Sie müssen sich nur noch einigen, wen sie diese Nacht fressen wollen.')
-    await s.bot.get_channel(s.werewolf_channel).send(WEREWOLVES_INPUT)
+    werewolves = [] #TODO
+    await s.bot.get_channel(s.werewolf_channel).send(' '.join([w.mention for w in werewolves]) + WEREWOLVES_INPUT)
     s.phase = "WEREWOLVES"
     # Warte auf Antwort von den Werwölfen
 
@@ -506,6 +507,11 @@ async def choosing_white_werewolf(s, msg):
     if msg.content.lower().strip() == 'niemanden':
         # Wenn der weiße Werwolf niemanden fressen will, dann geht es einfach weiter
         await s.bot.get_channel(s.game_channel).send(WHITE_WEREWOLF_FINISHED)
+        s.phase = ''
+        if 'Hexe' in s.current_roles:
+            await wake_witch(s)
+        else:
+            await daytime(s)
         return
 
     chosen = get_player_by_name(s, msg.content.strip())
@@ -523,7 +529,7 @@ async def choosing_white_werewolf(s, msg):
             comrade = chosen
             # Phase beendet; Entscheidung, was als nächstes passiert
             s.phase = ''
-            await msg.author.send('Du hast folgende Person gefressen' + comrade.mention + ' ({})'.format(get_name_discriminator(comrade)))
+            await msg.author.send('Du hast folgende Person gefressen: ' + comrade.mention + ' ({})'.format(get_name_discriminator(comrade)))
             s.died[1] = comrade
             await s.bot.get_channel(s.game_channel).send(WHITE_WEREWOLF_FINISHED)
             if 'Hexe' in s.current_roles:
@@ -842,7 +848,7 @@ def substract_lives(s):
     for d in s.died:
         if d:
             s.player_list[d]['lives'] -= 1  # Jeder verliert ein Leben
-            if s.player_list[d]['lives'] > 0 and d == s.died[0] or d == s.died[1]:
+            if s.player_list[d]['lives'] > 0 and (d == s.died[0] or d == s.died[1]):
                 # Wenn der Spieler noch Leben übrig hat, dann stirbt er nicht;
                 # aber nur, wenn er von einem Werwolf gefressen wurde
                 s.died[s.died.index(d)] = None
