@@ -57,7 +57,7 @@ class Werwolf(commands.Cog):
     @commands.command(pass_context=True,
                       description='Beschreibung des Spiels Werwolf.',
                       brief='Beschreibung des Spiels Werwolf.')
-    @commands.check(is_game_channel)
+    @commands.check(is_game_channel_or_dm)
     async def descr(self, ctx):
         await ctx.send('TODO')  # TODO Werwolf beschreiben
 
@@ -65,6 +65,7 @@ class Werwolf(commands.Cog):
                       hidden=True,
                       description='TEST',
                       brief='TEST')
+    @commands.is_owner()
     async def test(self, ctx):
         game: Game = self.games[ctx.guild.id]
         game.current_roles = ['Dieb', 'Hexe', 'Seherin']
@@ -83,7 +84,7 @@ class Werwolf(commands.Cog):
     @commands.command(pass_context=True,
                       description='Beschreibung der verschiedenen Rollen.',
                       brief='Beschreibung der verschiedenen Rollen.')
-    @commands.check(is_game_channel)
+    @commands.check(is_game_channel_or_dm)
     async def roles(self, ctx, *, argument):
         arg = ' '.join([part.capitalize() for part in argument.split(' ')])
         print(arg)
@@ -170,14 +171,14 @@ class Werwolf(commands.Cog):
             game.game_status['waiting for selection'] = True
             game.phase = 'SELECTION'
         elif game.playing:
-            await ctx.send('Es findet gerade ein Spiel statt. Du kannst danach mitspielen. :)')
+            await ctx.send('Es findet gerade ein Spiel statt.')
         else:
             await ctx.send('Es sind noch nicht genügend Spieler. Es sollte(n) noch mindestens ' + str(self.PLAYER_MIN - len(game.ready_list)) + ' Spieler dazukommen.')
 
     @commands.command(pass_context=True,
                       description='Liste von Spielern, die noch am Leben sind.',
                       brief='Liste von Spielern, die noch am Leben sind.')
-    @commands.check(is_game_channel)
+    @commands.check(is_game_channel_or_dm)
     async def alive(self, ctx):
         game: Game = self.games[ctx.guild.id]
         if game.playing:
@@ -244,8 +245,8 @@ class Werwolf(commands.Cog):
                         if not correct_roles(game, self.role_list):
                             await message.channel.send('Da stimmt etwas nicht. Gib ' + str(len(game.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Vergiss die Werwölfe nicht!')
                         else:
-                            role_string = '\n'.join(game.current_roles)
-                            await message.channel.send('Die Rollen sind also \n```' + role_string + '```\nIst das so richtig?')
+                            #role_string = '\n'.join(game.current_roles)
+                            await message.channel.send('Die Rollen sind also \n```' + '\n'.join(game.current_roles) + '```\nIst das so richtig?')
                             game.game_status['waiting for selection'] = False
                             game.game_status['selecting'] = True
                     elif game.game_status['selecting']:

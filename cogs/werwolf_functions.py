@@ -3,6 +3,7 @@ from private import *
 from my_constants import *
 from collections import Counter
 from typing import Dict
+from discord.ext import commands
 
 import operator
 import random
@@ -16,7 +17,17 @@ def is_game_channel(ctx):
     Keyword arguments:
     ctx -- Context
     """
+    print('test1')
     return ctx.message.channel.id in game_channel_list
+
+def is_game_channel_or_dm(ctx):
+    """Check if channel of context is the channel where you can play.
+
+    Keyword arguments:
+    ctx -- Context
+    """
+    print('test')
+    return is_game_channel(ctx) or isinstance(ctx.message.channel, discord.DMChannel)
 
 async def distribute_roles(s, ww_roles):
     """Distribute roles and start the game.
@@ -443,6 +454,8 @@ async def choosing_werewolves(s, msg):
                     if not v['good']:
                         citizens.append(v['citizen'])
                 s.died[0] = max(dict(Counter(citizens)).items(), key=operator.itemgetter(1))[0]
+                if not s.died[0]:
+                    s.died[0] = citizen
                 await s.bot.get_channel(s.werewolf_channel).send('Wollt ihr folgende Person fressen: ' + get_name_discriminator(s.died[0]) + '? (Es reicht, wenn einer von euch \"Ja\" bzw. \"Nein\" antwortet, sprecht euch also ab!)')
                 s.phase = "WEREWOLVES_VALIDATING"
         elif not is_alive(s, msg.author.id):
