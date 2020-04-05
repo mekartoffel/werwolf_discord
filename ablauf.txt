@@ -12,10 +12,8 @@
   - wildes kind? kann/ muss noch abstimmen?
   - richter
   - nachdem Liebespartner nach Abstimmung gestorben ist, ist der andere nicht mitgestorben?
-  - Anzeige von Rollen hat nur einen Werwolf angezeigt?
   - Sagen, welche Rolle der Tote hat
   - enthaltung
 
 
 TODO: wildes Kind stirbt, kann noch abstimmen? muss noch abstimmen?
-TODO: reset geht nicht richtig?

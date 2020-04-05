@@ -245,8 +245,7 @@ class Werwolf(commands.Cog):
                         if not correct_roles(game, self.role_list):
                             await message.channel.send('Da stimmt etwas nicht. Gib ' + str(len(game.ready_list)) + ' Rolle(n) ein. Wenn der Dieb dabei sein soll, dann gib noch 2 zusätzliche Rollen ein. Vergiss die Werwölfe nicht!')
                         else:
-                            #role_string = '\n'.join(game.current_roles)
-                            await message.channel.send('Die Rollen sind also \n```' + '\n'.join(game.current_roles) + '```\nIst das so richtig?')
+                            await message.channel.send('Die Rollen sind also ```\n' + '\n'.join(game.current_roles) + '\n```Ist das so richtig?')
                             game.game_status['waiting for selection'] = False
                             game.game_status['selecting'] = True
                     elif game.game_status['selecting']:
