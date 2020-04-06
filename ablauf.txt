@@ -11,9 +11,8 @@
   - weißer WErwolf: gewinnt irgendwie nicht?
   - wildes kind? kann/ muss noch abstimmen?
   - richter
-  - nachdem Liebespartner nach Abstimmung gestorben ist, ist der andere nicht mitgestorben?
-  - Sagen, welche Rolle der Tote hat
-  - enthaltung
+  - votecounter, damit man sehen kann, wie viele abgestimmt für wen abgestimmt haben
+
 
 
 TODO: wildes Kind stirbt, kann noch abstimmen? muss noch abstimmen?

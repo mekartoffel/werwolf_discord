@@ -112,7 +112,29 @@ class Werwolf(commands.Cog):
             await ctx.message.delete()
             await ctx.send(ctx.message.author.mention + ' ist bereit!')
         elif game.playing:
-            await ctx.send('Es findet gerade ein Spiel statt. Du kannst danach mitspielen. :)')
+            await ctx.send('Es findet gerade ein Spiel statt, aber du kannst in der nächsten Runde mitspielen. :)')
+        elif ctx.message.author in game.ready_list:
+            await ctx.send('Du bist schon bereit.')
+        else:
+            await ctx.send('Du bist schon in einem anderen Server dabei.')
+
+    @commands.command(pass_context=True,
+                      hidden=True,
+                      description='Bereit für Werwolf.',
+                      brief='Bereit für Werwolf.')
+    @commands.check(is_game_channel)
+    async def bereit(self, ctx):
+        print(ctx.guild.id)
+        game: Game = self.games[ctx.guild.id]
+        if ctx.message.author not in self.global_playerlist and ctx.message.author not in game.ready_list and not game.playing:
+            self.global_playerlist.append(ctx.message.author)
+            print(self.global_playerlist)
+            game.ready_list.append(ctx.message.author)
+            print(game.ready_list)
+            await ctx.message.delete()
+            await ctx.send(ctx.message.author.mention + ' ist bereit!')
+        elif game.playing:
+            await ctx.send('Es findet gerade ein Spiel statt, aber du kannst in der nächsten Runde mitspielen. :)')
         elif ctx.message.author in game.ready_list:
             await ctx.send('Du bist schon bereit.')
         else:
@@ -196,7 +218,7 @@ class Werwolf(commands.Cog):
             await ctx.send('Noch nicht abgestimmt haben:\n' + '\n'.join(
                 [player.mention for player in game.player_list if is_alive(game, player.id) and not game.player_list[player]['voted for']]))
         elif not game.playing:
-            await ctx.send('Darüber kann ich dir keine Auskunft geben, wenn niemand spielt. :)')
+            await ctx.send('Darüber kann ich dir keine Auskunft geben, wenn niemand spielt.')
         else:
             await ctx.send('Es wird gerade gar nicht abgestimmt. :)')
 
