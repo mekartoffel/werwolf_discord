@@ -223,6 +223,19 @@ class Werwolf(commands.Cog):
             await ctx.send('Es wird gerade gar nicht abgestimmt. :)')
 
     @commands.command(pass_context=True,
+                      description='Liste von Spielern und wie viele Leute schon gegen sie gestimmt haben.',
+                      brief='Wer hat schon wie viele Stimmen?')
+    @commands.check(is_game_channel)
+    async def votes(self, ctx):
+        game: Game = self.games[ctx.guild.id]
+        candidates = []
+        for c, v in game.player_list.items():
+            candidates.append(v['voted for'])
+        count_cand = {k: v for k, v in sorted(dict(Counter(candidates)).items(), key=lambda item: item[1], reverse=True)}
+        await self.bot.get_channel(game.game_channel).send('So habt ihr bisher abgestimmt:\n' + '\n'.join([u.mention + ': ' + str(c) for u, c in count_cand.items() if u]))
+
+
+    @commands.command(pass_context=True,
                       hidden=True,
                       description='Setzt die Ready-Liste für Werwolf zurück. Das kann aber nur der Bot-Owner.',
                       brief='Setzt die Ready-Liste für Werwolf zurück.')

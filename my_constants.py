@@ -1,7 +1,7 @@
 NOT_UNDERSTAND = 'Ich verstehe deine Eingabe nicht.\n'
 NOT_ALIVE = 'Die Person lebt leider nicht mehr...\n'
-INPUT_ONE = 'Benutze dafür bitte den __globalen oder Servernamen der Person (ohne `@`).__'
-INPUT_MORE = 'Benutze dafür bitte den __globalen oder Servernamen der Personen (ohne `@`)__ und trenne mit einem *Komma*.'
+INPUT_ONE = 'Benutze dafür bitte den __globalen oder Servernamen der Person (*ohne* `@`).__'
+INPUT_MORE = 'Benutze dafür bitte den __globalen oder Servernamen der Personen (*ohne* `@`)__ und trenne mit einem *Komma*.'
 
 THIEF_FINISHED = 'Der **Dieb** hat eine Identität gestohlen und geht zufrieden schlafen.'
 

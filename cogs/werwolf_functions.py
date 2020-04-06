@@ -850,6 +850,7 @@ async def voting(s, msg):
                     if judge and s.player_list[judge]['new vote']:
                         if is_alive(s, judge.id):
                             await judge.send('Die Abstimmung ist beendet und du kannst diese Runde keine zweite Abstimmung herbeiführen.')
+                    #todo vote counter
                     candidates = []
                     for c, v in s.player_list.items():
                         candidates.append(v['voted for'])
@@ -896,6 +897,7 @@ async def voting(s, msg):
                                 return
                         await s.bot.get_channel(s.game_channel).send('Ihr konntet euch nicht einig werden und da es keinen Sündenbock gibt, stirbt heute niemand mehr.')
                     elif len(to_die) == 1:
+                        to_die = [to_die[0]]
                         await s.bot.get_channel(s.game_channel).send('Die Abstimmung hat ergeben, ' + to_die[0].mention + ' zu töten.')
                         if idiot:
                             if idiot == to_die[0] and s.player_list[idiot]['voting right']:
