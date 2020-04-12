@@ -11,8 +11,8 @@
   - weißer WErwolf: gewinnt irgendwie nicht?
   - wildes kind? kann/ muss noch abstimmen?
   - richter
-  - votecounter, damit man sehen kann, wie viele abgestimmt für wen abgestimmt haben
 
 
 
 TODO: wildes Kind stirbt, kann noch abstimmen? muss noch abstimmen?
+TODO: jäger pingt zum umbringen

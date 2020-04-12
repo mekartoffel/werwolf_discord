@@ -241,7 +241,7 @@ async def wake_thief(s):
     if not get_player(s, 'Dieb'):
         # Kein Spieler ist Dieb
         # Sleep, sodass niemand es merkt, dass kein Dieb im Spiel ist
-        await asyncio.sleep(random.randint(40, 115))
+        await asyncio.sleep(random.randint(40, 80))
         await s.bot.get_channel(s.game_channel).send(THIEF_FINISHED)
         if 'Amor' in s.current_roles:
             await wake_amor(s)
@@ -296,7 +296,7 @@ async def wake_amor(s):
     if not get_player(s, 'Amor'):
         # Kein Spieler ist Amor
         # Sleep, sodass es nicht auffällt, dass kein Amor im Spiel ist
-        await asyncio.sleep(random.randint(30, 100))
+        await asyncio.sleep(random.randint(30, 80))
         await s.bot.get_channel(s.game_channel).send(AMOR_FINISHED)
         if 'Wildes Kind' in s.current_roles:
             await wake_wild_child(s)
@@ -335,7 +335,7 @@ async def wake_wild_child(s):
     if not get_player(s, 'Wildes Kind'):
         # Kein Spieler ist das wilde Kind
         # Sleep, sodass es nicht auffällt, dass kein wildes Kind im Spiel ist
-        await asyncio.sleep(random.randint(30, 90))
+        await asyncio.sleep(random.randint(30, 70))
         await s.bot.get_channel(s.game_channel).send(WILD_CHILD_FINISHED)
         await standard_night(s)
     else:
@@ -364,7 +364,7 @@ async def wake_healer(s):
         # Kein Spieler ist der Heiler
         # Sleep, sodass es nicht auffällt
         await s.bot.get_channel(s.game_channel).send(HEALER_WAKE)
-        await asyncio.sleep(random.randint(25, 75))
+        await asyncio.sleep(random.randint(25, 45))
         await s.bot.get_channel(s.game_channel).send(HEALER_FINISHED)
         if 'Seherin' in s.current_roles:
             await wake_seer(s)
@@ -415,7 +415,7 @@ async def wake_seer(s):
         # Kein Spieler ist die Seherin
         # Sleep, sodass es nicht auffällt
         await s.bot.get_channel(s.game_channel).send(SEER_WAKE)
-        await asyncio.sleep(random.randint(25, 75))
+        await asyncio.sleep(random.randint(7, 30))
         await s.bot.get_channel(s.game_channel).send(SEER_FINISHED)
         await wake_werewolves(s)
     elif not is_alive(s, seer.id):
@@ -535,7 +535,7 @@ async def wake_white_werewolf(s):
     if not get_player(s, 'Weißer Werwolf'):
         # Kein Spieler ist der weiße Werwolf
         await s.bot.get_channel(s.game_channel).send(WHITE_WEREWOLF_WAKE)
-        await asyncio.sleep(random.randint(25, 110))
+        await asyncio.sleep(random.randint(15, 45))
         await s.bot.get_channel(s.game_channel).send(WHITE_WEREWOLF_FINISHED)
         if 'Hexe' in s.current_roles:
             await wake_witch(s)
@@ -605,7 +605,7 @@ async def wake_witch(s):
         # Kein Spieler ist die Hexe
         # Sleep, sodass es nicht auffällt
         await s.bot.get_channel(s.game_channel).send(WITCH_WAKE)
-        await asyncio.sleep(random.randint(45, 110))
+        await asyncio.sleep(random.randint(20, 45))
         await s.bot.get_channel(s.game_channel).send(WITCH_FINISHED)
         await daytime(s)
     elif not is_alive(s, witch.id):
@@ -623,6 +623,8 @@ async def wake_witch(s):
                 return
             else:
                 await witch.send(NO_ONE_DIED)
+                s.phase = "WITCH_DEATH"
+                await witch.send(WITCH_INPUT_KILL)
         elif 'Gifttrank' in tranks:
             await witch.send(WITCH_ALREADY_HEALED)
             # Wenn sie keinen Heiltrank mehr hat oder niemand gestorben ist, soll sie direkt den Gifttrank benutzen können
@@ -631,7 +633,7 @@ async def wake_witch(s):
         else:
             # Die Hexe hat keine Tränke mehr und kann nichts machen
             await witch.send(WITCH_NO_TRANKS)
-            await asyncio.sleep(random.randint(30, 60))
+            await asyncio.sleep(random.randint(10, 20))
             await s.bot.get_channel(s.game_channel).send(WITCH_FINISHED)
             await daytime(s)
 
@@ -783,13 +785,15 @@ async def choosing_hunter(s, msg):
                 if old_man in chosen:
                     await s.bot.get_channel(s.game_channel).send('Der Jäger hat' + OLD_MAN_DIED)
                     old_man_died(s)
-            # Phase beendet; Der Tag beginnt
-            s.phase = ''
             if s.phase == "HUNTER_NIGHT":
+                # Phase beendet; Der Tag beginnt
+                s.phase = ''
                 await good_to_wild(s)
                 await angry_mob(s)
                 return
             elif s.phase == "HUNTER_VOTE":
+                # Phase beendet; Der Tag beginnt
+                s.phase = ''
                 await after_voting(s)
                 return
         elif not is_alive(s, chosen.id):
@@ -840,8 +844,8 @@ async def voting(s, msg):
                 # Lebt die Person noch?
                 amor = get_player(s, 'Amor')
                 if amor:
-                    if msg.author in s.player_list[amor]['loving'] and chosen in s.player_list[amor]['loving']:
-                        # Wenn jemand gegen seinen Liebespartner stimmen will, halte ihn davon ab
+                    if msg.author in s.player_list[amor]['loving'] and chosen in s.player_list[amor]['loving'] and msg.author != chosen:
+                        # Wenn jemand gegen seinen Liebespartner stimmen will, halte ihn davon ab; Aber wenn er sich selbst wählt, ist es okay
                         await msg.delete()
                         await msg.author.send(CITIZEN_LOVE)
                         return

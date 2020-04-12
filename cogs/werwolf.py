@@ -24,7 +24,7 @@ class Game():
         self.phase = ''  # Was passiert gerade?
 
         self.game_status: Dict[str, bool] = {'waiting for selection': False, 'selecting': False, 'playing': False}
-        self.round_no = 1
+        self.round_no = 3
 
 
 class Werwolf(commands.Cog):
@@ -112,7 +112,7 @@ class Werwolf(commands.Cog):
             await ctx.message.delete()
             await ctx.send(ctx.message.author.mention + ' ist bereit!')
         elif game.playing:
-            await ctx.send('Es findet gerade ein Spiel statt, aber du kannst in der nächsten Runde mitspielen. :)')
+            await ctx.send('Es findet gerade ein Spiel statt, aber du kannst in der nächsten Runde mitspielen.')
         elif ctx.message.author in game.ready_list:
             await ctx.send('Du bist schon bereit.')
         else:
@@ -134,7 +134,7 @@ class Werwolf(commands.Cog):
             await ctx.message.delete()
             await ctx.send(ctx.message.author.mention + ' ist bereit!')
         elif game.playing:
-            await ctx.send('Es findet gerade ein Spiel statt, aber du kannst in der nächsten Runde mitspielen. :)')
+            await ctx.send('Es findet gerade ein Spiel statt, aber du kannst in der nächsten Runde mitspielen.')
         elif ctx.message.author in game.ready_list:
             await ctx.send('Du bist schon bereit.')
         else:
@@ -206,7 +206,7 @@ class Werwolf(commands.Cog):
         if game.playing:
             await ctx.send('Es leben noch:\n' + '\n'.join([player.mention for player in game.player_list if is_alive(game, player.id)]))
         else:
-            await ctx.send('Darüber kann ich dir keine Auskunft geben, wenn niemand spielt. :)')
+            await ctx.send('Darüber kann ich dir keine Auskunft geben, wenn niemand spielt.')
 
     @commands.command(pass_context=True,
                       description='Liste von Spielern, die noch nicht abgestimmt haben.',
@@ -220,7 +220,14 @@ class Werwolf(commands.Cog):
         elif not game.playing:
             await ctx.send('Darüber kann ich dir keine Auskunft geben, wenn niemand spielt.')
         else:
-            await ctx.send('Es wird gerade gar nicht abgestimmt. :)')
+            await ctx.send('Es wird gerade gar nicht abgestimmt.')
+
+    @commands.command(pass_context=True,
+                      description='Liste von Spielern, die noch nicht abgestimmt haben.',
+                      brief='Liste von Spielern, die noch nicht abgestimmt haben.')
+    @commands.check(is_game_channel)
+    async def missing_votes(self, ctx):
+        await self.missing_vote.invoke(self,ctx)
 
     @commands.command(pass_context=True,
                       description='Liste von Spielern und wie viele Leute schon gegen sie gestimmt haben.',
