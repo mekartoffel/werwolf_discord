@@ -12,30 +12,7 @@ class Allgemein(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         msg = message.content.lower()
-        #Egal, von wem die Nachricht kommt, er soll reagieren
-        hi = ['hallo', 'servus', 'guten tag', 'moin', 'hello', 'guten morgen', 'winke', 'hey yo']
-        glitzer = ['glitter', 'glitzer', 'sparkle', 'stern', '✨']
-        for word in hi:
-            if word in msg:
-                emoji = get(self.bot.emojis, id=WINKUS)
-                print(emoji)
-                await message.add_reaction(emoji)
-                break
-        for word in glitzer:
-            if word in msg:
-                emoji = get(self.bot.emojis, id=SPARKLE3)
-                await message.add_reaction(emoji)
-                break
-        if 'hose' in msg:
-            emoji = get(self.bot.emojis, id=MM_HOSE)
-            await message.add_reaction(emoji)
-        if 'halo' in msg:
-            emoji = get(self.bot.emojis, id=CAUGHT_ME)
-            await message.add_reaction(emoji)
-        
-        #print(discord.utils.find(lambda m: message.content in m.name , self.bot.get_guild(TEST_SERVER_ID).members))
-
-        # Er soll aber nicht auf sich selbst antworten
+        # Er soll aber nicht auf sich selbst reagieren
         if message.author == self.bot.user:
             return
 
