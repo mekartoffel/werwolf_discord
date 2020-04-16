@@ -23,6 +23,7 @@ class Allgemein(commands.Cog):
         except UnicodeEncodeError:
             print('Nachricht kann nicht angezeigt werden.')
 
+
     @commands.command(pass_context=True,
         description='Ist wie ein Echo: Gibt die gleiche Nachricht aus wie eingegeben wurde.',
         brief='Wiederholt die eingegebene Nachricht.')
@@ -30,6 +31,7 @@ class Allgemein(commands.Cog):
         print(argument)
         await ctx.send(argument)
         await ctx.message.delete()
+
 
     @echo.error
     async def echo_on_error(self, ctx, error):
