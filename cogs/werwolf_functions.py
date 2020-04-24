@@ -47,14 +47,14 @@ async def distribute_roles(s, ww_roles):
         del s.player_list[player]['wake up']
         del s.player_list[player]['description']
 
-        await player.send('Du hast folgende Rolle: ' + role)
+        await player.send(ROLE_FOR_PLAYER.format(role=role))
         if role == WITCH_ROLE:
             s.player_list[player]['tranks'] = ["Heiltrank", "Gifttrank"]
         if not s.player_list[player]['good']:
             werewolves.append(player)
-            await player.send('Es wurde ein neuer Kanal für dich und die anderen Werwölfe freigeschalten: <#' + str(s.werewolf_channel) + '>')
+            await player.send(NEW_WW_CHANNEL.format(channel_id=str(s.werewolf_channel)))
             await s.bot.get_channel(s.werewolf_channel).set_permissions(player, read_messages=True, send_messages=True)
-    await s.bot.get_channel(s.werewolf_channel).send('Willkommen!\n' + ' '.join([w.mention for w in werewolves]) + ', ihr seid für diese Runde die Werwölfe. Hier ist Raum für euch zum Diskutieren und Abstimmen.')
+    await s.bot.get_channel(s.werewolf_channel).send(WEREWOLVES_WELCOME.format(werewolves=' '.join([w.mention for w in werewolves])))
     print(s.player_list)
     await first_night(s)
 
@@ -204,7 +204,7 @@ async def first_night(s):
     Keyword arguments:
     s -- self of the calling class; to pass class vars
     """
-    await s.bot.get_channel(s.game_channel).send('Die Nacht legt sich still über euer Dorf. Alle Dorfbewohner begeben sich zur Ruhe und schließen die Augen.')
+    await s.bot.get_channel(s.game_channel).send(GOING_TO_SLEEP)
     # Nur einer wird geweckt; wenn keiner in diesem Spiel vertreten ist, dann ist die erste Nacht "irrelevant"
     if THIEF_ROLE in s.current_roles:
         await wake_thief(s)
@@ -223,6 +223,7 @@ async def standard_night(s):
     s -- self of the calling class; to pass class vars
     """
     print('standard night')
+    print(s.current_roles)
     if HEALER_ROLE in s.current_roles:
         await wake_healer(s)
     elif SEER_ROLE in s.current_roles:
@@ -237,11 +238,11 @@ async def wake_thief(s):
     Keyword arguments:
     s -- self of the calling class; to pass class vars
     """
-    await s.bot.get_channel(s.game_channel).send('Der **Dieb** wacht auf. Er ist sehr unzufrieden mit sich selbst und möchte sich deshalb eine der übrigen Identitäten stehlen.')
+    await s.bot.get_channel(s.game_channel).send(THIEF_WAKE)
     if not get_player(s, THIEF_ROLE):
         # Kein Spieler ist Dieb
         # Sleep, sodass niemand es merkt, dass kein Dieb im Spiel ist
-        await asyncio.sleep(random.randint(40, 80))
+        await asyncio.sleep(random.randint(15, 40))
         await s.bot.get_channel(s.game_channel).send(THIEF_FINISHED)
         if CUPID_ROLE in s.current_roles:
             await wake_amor(s)
@@ -250,7 +251,7 @@ async def wake_thief(s):
         else:
             await standard_night(s)
     else:
-        await get_player(s, THIEF_ROLE).send('Du hast folgende Rollen zur Auswahl: ' + ', '.join(s.current_roles[-2:]))
+        await get_player(s, THIEF_ROLE).send(THIEF_OPTIONS.format(roles=', '.join(s.current_roles[-2:])))
         s.phase = THIEF_PHASE
         # Warte auf Antwort vom Dieb
 
@@ -273,11 +274,11 @@ async def choosing_thief(s, msg, ww_roles):
             del s.player_list[msg.author]['wake up']
             del s.player_list[msg.author]['description']
             print(s.player_list)
-            await msg.author.send('Okay, du hast nun folgende Identität: ' + role)
+            await msg.author.send(THIEF_CHOSE.format(role=role))
             if 'werwolf' in msg.content.lower():
                 await s.bot.get_channel(s.werewolf_channel).set_permissions(msg.author, read_messages=True, send_messages=True)
-                await msg.author.send('Es wurde ein neuer Kanal für dich und die anderen Werwölfe freigeschalten: <#' + str(s.werewolf_channel) + '>')
-                await s.bot.get_channel(s.werewolf_channel).send(msg.author.mention + ' gehört nun zu den Werwölfen!')
+                await msg.author.send(NEW_WW_CHANNEL.format(channel_id=str(s.werewolf_channel)))
+                await s.bot.get_channel(s.werewolf_channel).send(NEW_WW.format(player=msg.author.mention))
             # Phase ist beendet; Entscheidung, was als nächstes passiert
             s.phase = ''
             await s.bot.get_channel(s.game_channel).send(THIEF_FINISHED)
@@ -288,7 +289,7 @@ async def choosing_thief(s, msg, ww_roles):
             else:
                 await standard_night(s)
             return
-    await msg.author.send('Das war keine der zur Wahl stehenden Identitäten. Bitte wähle noch einmal.')
+    await msg.author.send(THIEF_CHOSE_WRONG)
 
 
 async def wake_amor(s):
@@ -296,7 +297,7 @@ async def wake_amor(s):
     if not get_player(s, CUPID_ROLE):
         # Kein Spieler ist Amor
         # Sleep, sodass es nicht auffällt, dass kein Amor im Spiel ist
-        await asyncio.sleep(random.randint(30, 80))
+        await asyncio.sleep(random.randint(30, 60))
         await s.bot.get_channel(s.game_channel).send(CUPID_FINISHED)
         if WILD_CHILD_ROLE in s.current_roles:
             await wake_wild_child(s)
@@ -313,12 +314,12 @@ async def choosing_amor(s, msg):
     if len(chosen) >= 2 and in_playerlist(s, chosen) and chosen[0] != chosen[1]:
         # Wer sind die Verliebten?
         s.player_list[msg.author]['loving'] = chosen[:2]
-        await msg.author.send('Okay, die beiden sind nun verliebt: ' + ' und '.join([user.mention + ' ({})'.format(get_name_discriminator(user)) for user in s.player_list[msg.author]['loving']]))
+        await msg.author.send(CUPID_CHOSE_COUPLE.format(couple=' und '.join([user.mention + ' ({})'.format(get_name_discriminator(user)) for user in s.player_list[msg.author]['loving']])))
         # Die Verliebten informieren
         lover1 = s.player_list[msg.author]['loving'][0]
         lover2 = s.player_list[msg.author]['loving'][1]
-        await lover1.send('Du bist jetzt verliebt in ' + lover2.mention + ' ({}) '.format(get_name_discriminator(lover2)) + str(discord.utils.get(s.bot.emojis, id=524903179574575124)))
-        await lover2.send('Du bist jetzt verliebt in ' + lover1.mention + ' ({}) '.format(get_name_discriminator(lover1)) + str(discord.utils.get(s.bot.emojis, id=524903179574575124)))
+        await lover1.send(NOTIFY_LOVER.format(other_lover=lover2.mention + ' ({}) '.format(get_name_discriminator(lover2))))
+        await lover2.send(NOTIFY_LOVER.format(other_lover=lover1.mention + ' ({}) '.format(get_name_discriminator(lover1))))
         # Phase ist beendet; Entscheidung, was als nächstes passiert
         s.phase = ''
         await s.bot.get_channel(s.game_channel).send(CUPID_FINISHED)
@@ -350,7 +351,7 @@ async def choosing_wild_child(s, msg):
     print(chosen)
     if chosen in s.player_list.keys() and chosen.id != msg.author.id:
         s.player_list[msg.author]['role model'] = chosen
-        await msg.author.send('Okay, diese Person ist nun dein Vorbild: ' + chosen.mention + ' ({})'.format(get_name_discriminator(chosen)))
+        await msg.author.send(WILD_CHILD_CHOSE.format(player=chosen.mention + ' ({})'.format(get_name_discriminator(chosen))))
         # Phase beendet; Die Spezialrollen für die erste Nacht sind fertig.
         s.phase = ''
         await s.bot.get_channel(s.game_channel).send(WILD_CHILD_FINISHED)
@@ -394,7 +395,7 @@ async def choosing_healer(s, msg):
             if chosen != s.player_list[msg.author]['chosen']:
                 # Wurde die Person in der vorherigen Runde auch schon gewählt?
                 s.player_list[msg.author]['chosen'] = chosen
-                await msg.author.send('Okay, diese Person beschützt du heute Nacht: ' + chosen.mention + ' ({})'.format(get_name_discriminator(chosen)))
+                await msg.author.send(HEALER_CHOSE.format(player=chosen.mention + ' ({})'.format(get_name_discriminator(chosen))))
                 # Phase beendet; Entscheidung, was als nächstes passiert
                 s.phase = ''
                 await s.bot.get_channel(s.game_channel).send(HEALER_FINISHED)
@@ -437,7 +438,7 @@ async def choosing_seer(s, msg):
         if is_alive(s, chosen.id):
             # Lebt die Person noch?
             checked_person = chosen
-            await msg.author.send(checked_person.mention + ' ({})'.format(get_name_discriminator(checked_person)) + ' hat folgende Identität: ' + s.player_list[checked_person]['role'])
+            await msg.author.send(SEER_SEE_ROLE.format(player=checked_person.mention + ' ({})'.format(get_name_discriminator(checked_person)), role=s.player_list[checked_person]['role']))
             # Phase beendet; Werwölfe sind als nächstes dran
             s.phase = ''
             await s.bot.get_channel(s.game_channel).send(SEER_FINISHED)
@@ -459,7 +460,7 @@ async def wake_werewolves(s):
 async def choosing_werewolves(s, msg):
     if 'enthaltung' in msg.content.lower() and is_alive(s, msg.author.id):
         s.player_list[msg.author]['citizen'] = msg.guild.get_member(BOT_ID)
-        await s.bot.get_channel(s.werewolf_channel).send(msg.author.mention + ' ist es egal.')
+        await s.bot.get_channel(s.werewolf_channel).send(WEREWOLVES_DONT_CARE.format(player=msg.author.mention))
         if werewolves_chosen(s):
             # Erst, wenn alle gewählt haben, wird gefragt, ob sie mit der Wahl einverstanden sind.
             citizens = []
@@ -470,7 +471,7 @@ async def choosing_werewolves(s, msg):
             if not s.died[0]:
                 await s.bot.get_channel(s.werewolf_channel).send(WEREWOLVES_WHO_TO_KILL)
                 return
-            await s.bot.get_channel(s.werewolf_channel).send('Wollt ihr folgende Person fressen: ' + get_name_discriminator(s.died[0]) + '? (Es reicht, wenn einer von euch \"Ja\" bzw. \"Nein\" antwortet, sprecht euch also ab!)')
+            await s.bot.get_channel(s.werewolf_channel).send(WEREWOLVES_CONFIRM.format(victim=get_name_discriminator(s.died[0])))
             s.phase = WEREWOLVES_PHASE_CONFIRM
         return
     citizen = get_player_by_name(s, msg.content.strip())
@@ -487,7 +488,7 @@ async def choosing_werewolves(s, msg):
                     await msg.author.send(WEREWOLVES_LOVE)
                     return
             s.player_list[msg.author]['citizen'] = citizen
-            await s.bot.get_channel(s.werewolf_channel).send(msg.author.mention + ' möchte folgende Person fressen: ' + get_name_discriminator(citizen))
+            await s.bot.get_channel(s.werewolf_channel).send(WEREWOLVES_CHOSE.format(player=msg.author.mention, victim=get_name_discriminator(citizen)))
             if werewolves_chosen(s):
                 # Erst, wenn alle gewählt haben, wird gefragt, ob sie mit der Wahl einverstanden sind.
                 citizens = []
@@ -497,19 +498,19 @@ async def choosing_werewolves(s, msg):
                 s.died[0] = max(dict(Counter(citizens)).items(), key=operator.itemgetter(1))[0]
                 if not s.died[0]:
                     s.died[0] = citizen
-                await s.bot.get_channel(s.werewolf_channel).send('Wollt ihr folgende Person fressen: ' + get_name_discriminator(s.died[0]) + '? (Es reicht, wenn einer von euch \"Ja\" bzw. \"Nein\" antwortet, sprecht euch also ab!)')
+                await s.bot.get_channel(s.werewolf_channel).send(WEREWOLVES_CONFIRM.format(victim=get_name_discriminator(s.died[0])))
                 s.phase = WEREWOLVES_PHASE_CONFIRM
         elif not is_alive(s, msg.author.id):
-            await s.bot.get_channel(s.werewolf_channel).send(msg.author.mention + ', du darfst gar nicht mehr wählen.')
+            await s.bot.get_channel(s.werewolf_channel).send(CANT_VOTE.format(player=msg.author.mention))
         else:
-            await s.bot.get_channel(s.werewolf_channel).send(msg.author.mention + ', diesen Spieler kannst du nicht wählen.')
+            await s.bot.get_channel(s.werewolf_channel).send(NOT_ALLOWED.format(player=msg.author.mention))
     # Wenn es eine komische Nachricht ist, dann diskutieren sie wahrscheinlich
 
 
 async def confirming_werewolves(s, msg):
     if msg.content.lower().strip() == 'ja':
         # Die Werwölfe haben sich entschieden, die Person zu fressen
-        await s.bot.get_channel(s.werewolf_channel).send('Ihr habt folgende Person gefressen: ' + get_name_discriminator(s.died[0]))
+        await s.bot.get_channel(s.werewolf_channel).send(ATE.format(victim=get_name_discriminator(s.died[0])))
         # Phase beendet; Entscheidung, was als nächstes passiert
         s.phase = ''
         await s.bot.get_channel(s.game_channel).send(WEREWOLVES_FINISHED)
@@ -528,7 +529,7 @@ async def confirming_werewolves(s, msg):
         else:
             await daytime(s)
     elif msg.content.lower().strip() == 'nein':
-        await s.bot.get_channel(s.werewolf_channel).send('Okay, wer soll gefressen werden? (Nur, wer seine Meinung ändert, sollte nochmal seine Stimme ändern.)')
+        await s.bot.get_channel(s.werewolf_channel).send(WEREWOLVES_VOTE_AGAIN)
         s.phase = WEREWOLVES_PHASE
     # Wenn es eine komische Nachricht ist, dann diskutieren sie wahrscheinlich
 
@@ -583,7 +584,7 @@ async def choosing_white_werewolf(s, msg):
             comrade = chosen
             # Phase beendet; Entscheidung, was als nächstes passiert
             s.phase = ''
-            await msg.author.send('Du hast folgende Person gefressen: ' + comrade.mention + ' ({})'.format(get_name_discriminator(comrade)))
+            await msg.author.send(ATE.format(victim=comrade.mention + ' ({})'.format(get_name_discriminator(comrade))))
             s.died[1] = comrade
             healer = get_player(s, 'Heiler')
             if healer:
@@ -596,7 +597,7 @@ async def choosing_white_werewolf(s, msg):
             else:
                 await daytime(s)
         elif not is_bad(s, chosen.id):
-            await msg.author.send('Die Person ist keiner deiner Werwolf-Kameraden...\n' + WHITE_WEREWOLF_INPUT)
+            await msg.author.send(WHITE_WEREWOLF_NOT_COMRADE)
         elif not is_alive(s, chosen.id):
             await msg.author.send(NOT_ALIVE + WHITE_WEREWOLF_INPUT)
     else:
@@ -648,11 +649,11 @@ async def choosing_witch_heal(s, msg):
     if msg.content.lower().strip() == 'ja':
         # Sie möchte das Opfer retten
         del tranks[tranks.index('Heiltrank')]
-        await msg.author.send(s.died[0].mention + ' ({}) '.format(get_name_discriminator(s.died[0])) + ' wurde von dir gerettet!')
+        await msg.author.send(WITCH_HEALED.format(player=s.died[0].mention + ' ({}) '.format(get_name_discriminator(s.died[0]))))
         s.died[0] = None
     elif msg.content.lower().strip() == 'nein':
         # Sie möchte das Opfer nicht retten
-        await msg.author.send(s.died[0].mention + ' ({})'.format(get_name_discriminator(s.died[0])) + ' wurde nicht von dir gerettet.')
+        await msg.author.send(WITCH_NOT_HEALED.format(player=s.died[0].mention + ' ({})'.format(get_name_discriminator(s.died[0]))))
     else:
         await msg.author.send(NOT_UNDERSTAND + s.died[0].mention + ' ({}) {}'.format(get_name_discriminator(s.died[0]), WITCH_INPUT_HEAL))
         return
@@ -690,7 +691,7 @@ async def choosing_witch_kill(s, msg):
                     return
             del tranks[tranks.index('Gifttrank')]
             killed_person = chosen
-            await msg.author.send('Du hast folgende Person vergiftet: ' + killed_person.mention + ' ({})'.format(get_name_discriminator(killed_person)))
+            await msg.author.send(WITCH_KILLED.format(victim=killed_person.mention + ' ({})'.format(get_name_discriminator(killed_person))))
             s.died[2] = killed_person
             # Phase beendet; der Tag bricht an
             s.phase = ''
@@ -715,7 +716,7 @@ async def daytime(s):
 
 
 async def wake_up_with_dead(s):
-    await s.bot.get_channel(s.game_channel).send('{}\nEs ist gestorben: {}'.format(MORNING, ', '.join(['{player} ({role})'.format(player=u.mention, role=s.player_list[u]['role']) for u in s.died if u])))
+    await s.bot.get_channel(s.game_channel).send(WHO_DIED.format(MORNING, ', '.join(['{player} ({role})'.format(player=u.mention, role=s.player_list[u]['role']) for u in s.died if u])))
     amor = get_player(s, CUPID_ROLE)
     if amor:
         # Wenn einer der Liebenden stirbt, sterben beide
@@ -730,7 +731,7 @@ async def wake_up_with_dead(s):
         if ld and ldw:
             s.player_list[ldw]['alive'] = 0
             s.died.append(ldw)
-            await s.bot.get_channel(s.game_channel).send('Da {td} gestorben ist, stirbt nun auch {loving} ({role}). 💔'.format(td=ld.mention, loving=ldw.mention, role=s.player_list[ldw]['role']))
+            await s.bot.get_channel(s.game_channel).send(COUPLE_DIES.format(td=ld.mention, loving=ldw.mention, role=s.player_list[ldw]['role']))
     old_man = get_player(s, OLD_MAN_ROLE)
     if old_man:
         if old_man in s.died and old_man != s.died[0] and old_man != s.died[1]:
@@ -755,9 +756,9 @@ async def good_to_wild(s):
             if not is_alive(s, s.player_list[wild_child]['role model'].id):
                 s.player_list[wild_child]['good'] = 0
                 await wild_child.send(WILD_CHILD_RM_DIED)
-                await wild_child.send('Es wurde ein neuer Kanal für dich und die anderen Werwölfe freigeschalten: <#' + str(s.werewolf_channel) + '>')
+                await wild_child.send(NEW_WW_CHANNEL.format(channel_id=str(s.werewolf_channel)))
                 await s.bot.get_channel(s.werewolf_channel).set_permissions(wild_child, read_messages=True, send_messages=True)
-                await s.bot.get_channel(s.werewolf_channel).send(wild_child.mention + ' gehört nun zu den Werwölfen!')
+                await s.bot.get_channel(s.werewolf_channel).send(NEW_WW.format(player=wild_child.mention))
 
 
 async def choosing_hunter(s, msg):
@@ -777,7 +778,7 @@ async def choosing_hunter(s, msg):
             # Lebt diese Person überhaupt noch?
             # Anm.: Es muss nicht beachtet werden, ob der Jäger seinen Liebespartner tötet, weil dieser sowieso vorher schon mit ihm stirbt
             s.player_list[chosen]['alive'] = 0
-            await s.bot.get_channel(s.game_channel).send('Der Jäger hat folgende Person mit sich in den Tod gerissen: ' + chosen.mention + ' ({})'.format(s.player_list[chosen]['role']))
+            await s.bot.get_channel(s.game_channel).send(HUNTER_CHOSE.format(victim=chosen.mention + ' ({})'.format(s.player_list[chosen]['role'])))
             chosen = [chosen]
             amor = get_player(s, CUPID_ROLE)
             if amor:
@@ -791,7 +792,7 @@ async def choosing_hunter(s, msg):
                 if ldw:
                     s.player_list[ldw]['alive'] = 0
                     chosen.append(ldw)
-                    await s.bot.get_channel(s.game_channel).send('Und da {td} gestorben ist, stirbt nun auch {loving} ({role}). 💔'.format(td=chosen[0].mention, loving=ldw.mention, role=s.player_list[ldw]['role']))
+                    await s.bot.get_channel(s.game_channel).send(COUPLE_DIES.format(td=chosen[0].mention, loving=ldw.mention, role=s.player_list[ldw]['role']))
             old_man = get_player(s, OLD_MAN_ROLE)
             if old_man:
                 if old_man in chosen:
@@ -862,7 +863,7 @@ async def voting(s, msg):
                         await msg.author.send(CITIZEN_LOVE)
                         return
                 s.player_list[msg.author]['voted for'] = chosen
-                await s.bot.get_channel(s.game_channel).send(msg.author.mention + ' hat für ' + chosen.mention + ' abgestimmt!')
+                await s.bot.get_channel(s.game_channel).send(VOTED_FOR.format(player=msg.author.mention, chosen=chosen.mention))
                 if citizens_chosen(s):
                     # Alle haben gewählt, Abstimmungsrunde beendet
                     s.phase = ''
@@ -875,7 +876,7 @@ async def voting(s, msg):
                         candidates.append(v['voted for'])
                         v['voted for'] = None
                     count_cand = {k: v for k, v in sorted(dict(Counter(candidates)).items(), key=lambda item: item[1], reverse=True)}
-                    await s.bot.get_channel(s.game_channel).send('So habt ihr abgestimmt:\n' + '\n'.join([u.mention + ': ' + str(c) for u, c in count_cand.items() if u]))
+                    await s.bot.get_channel(s.game_channel).send(VOTE_FINISHED.format(votes='\n'.join([u.mention + ': ' + str(c) for u, c in count_cand.items() if u])))
                     to_die = list(count_cand.keys())
                     for c, v in count_cand.items():
                         if v < count_cand[to_die[0]] or not c:
@@ -887,7 +888,7 @@ async def voting(s, msg):
                             if is_alive(s, scapegoat.id):
                                 to_die = []
                                 s.player_list[scapegoat]['alive'] = 0
-                                await s.bot.get_channel(s.game_channel).send('Ihr konntet euch nicht einig werden. Deshalb muss der Sündenbock, also ' + scapegoat.mention + ' sterben.')
+                                await s.bot.get_channel(s.game_channel).send(VOTE_SCAPEGOAT.format(scapegoat=scapegoat.mention))
                                 if amor:
                                     # Wenn einer der Liebenden stirbt, sterben beide
                                     loving = s.player_list[amor]['loving']
@@ -899,7 +900,7 @@ async def voting(s, msg):
                                     if ldw:
                                         s.player_list[ldw]['alive'] = 0
                                         to_die.append(ldw)
-                                        await s.bot.get_channel(s.game_channel).send('Und weil {td} gestorben ist, stirbt nun auch {loving} ({role}). 💔'.format(td=scapegoat.mention, loving=ldw.mention, role=s.player_list[ldw]['role']))
+                                        await s.bot.get_channel(s.game_channel).send(COUPLE_DIES.format(td=scapegoat.mention, loving=ldw.mention, role=s.player_list[ldw]['role']))
                                     old_man = get_player(s, OLD_MAN_ROLE)
                                     if old_man:
                                         if old_man in to_die:
@@ -918,7 +919,7 @@ async def voting(s, msg):
                         await s.bot.get_channel(s.game_channel).send(VOTE_DRAW)
                     elif len(to_die) == 1:
                         to_die = [to_die[0]]
-                        await s.bot.get_channel(s.game_channel).send('Die Abstimmung hat ergeben, ' + to_die[0].mention + ' zu töten.')
+                        await s.bot.get_channel(s.game_channel).send(VOTE_VICTIM.format(victim=to_die[0].mention))
                         if idiot:
                             if idiot == to_die[0] and s.player_list[idiot]['voting right']:
                                 s.player_list[idiot]['voting right'] = 0
@@ -926,7 +927,7 @@ async def voting(s, msg):
                                 await after_voting(s)
                                 return
                         s.player_list[to_die[0]]['alive'] = 0
-                        await s.bot.get_channel(s.game_channel).send('{player} ({role}) ist gestorben.'.format(player=to_die[0].mention, role=s.player_list[to_die[0]]['role']))
+                        await s.bot.get_channel(s.game_channel).send(PLAYER_DIED.format(player=to_die[0].mention, role=s.player_list[to_die[0]]['role']))
                         if amor:
                             # Wenn einer der Liebenden stirbt, sterben beide
                             loving = s.player_list[amor]['loving']
@@ -938,7 +939,7 @@ async def voting(s, msg):
                             if ldw:
                                 s.player_list[ldw]['alive'] = 0
                                 to_die.append(ldw)
-                                await s.bot.get_channel(s.game_channel).send('Und weil {td} gestorben ist, stirbt nun auch {loving} ({role}). 💔'.format(td=to_die[0].mention, loving=ldw.mention, role=s.player_list[ldw]['role']))
+                                await s.bot.get_channel(s.game_channel).send(COUPLE_DIES.format(td=to_die[0].mention, loving=ldw.mention, role=s.player_list[ldw]['role']))
                         old_man = get_player(s, OLD_MAN_ROLE)
                         if old_man:
                             if old_man in to_die:
@@ -956,8 +957,7 @@ async def voting(s, msg):
                     await after_voting(s)
                     return
             else:
-                await s.bot.get_channel(s.game_channel).send(
-                    msg.author.mention + ', dieser Spieler ist schon tot. Du kannst ihn nicht wählen.')
+                await s.bot.get_channel(s.game_channel).send(ALREADY_DEAD.format(player=msg.author.mention))
     except AttributeError:
         return
 
@@ -1039,6 +1039,5 @@ async def reset_vars(s):
     s.playing = False
     s.phase = ''
 
-    s.game_status: Dict[str, bool] = {'waiting for selection': False, 'selecting': False, 'playing': False}
-        # Sleep, sodass es nicht auffällt
+    s.game_status = {'waiting for selection': False, 'selecting': False, 'playing': False}
     s.round_no = 1
