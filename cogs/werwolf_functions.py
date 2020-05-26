@@ -100,6 +100,14 @@ def get_name_discriminator(player):
     """
     return player.name + '#' + player.discriminator
 
+def mention_in_dm(player):
+    """ Mention a player in DMs so it also works for mobile devices.
+
+    :param player: Player to be mentioned
+    :return: Mentioning with the discriminator of the player
+    """
+    return player.mention+ ' ({}) '.format(get_name_discriminator(player))
+
 
 def get_player(s, role):
     """Gets the player with the given role.
@@ -331,7 +339,7 @@ async def wake_amor(s):
         else:
             await standard_night(s)
     else:
-        await get_player(s, CUPID_ROLE).send(CUPID_INPUT.format(options='\n'.join([str(i+1)+'. ' + player.mention+ ' ({}) '.format(get_name_discriminator(player)) for i,player in enumerate(still_alive(s))])))
+        await get_player(s, CUPID_ROLE).send(CUPID_INPUT.format(options='\n'.join([str(i+1)+'. ' + mention_in_dm(player) for i,player in enumerate(still_alive(s))])))
         s.phase = CUPID_PHASE
         # Warte auf Antwort vom Amor
 
@@ -342,7 +350,7 @@ async def choosing_amor(s, msg):
     try:
         chosen_is = [int(i.strip())-1 for i in msg.content.split(',')]
     except ValueError:
-        await msg.author.send(NOT_UNDERSTAND + CUPID_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_UNDERSTAND + CUPID_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
         return
     #if len(chosen) >= 2 and in_playerlist(s, chosen) and chosen[0] != chosen[1]:
     if len(chosen_is) == 2 and valid_choice(chosen_is[0], option_list) and valid_choice(chosen_is[1], option_list) and chosen_is[0] != chosen_is[1]:
@@ -350,12 +358,12 @@ async def choosing_amor(s, msg):
         #s.player_list[msg.author]['loving'] = chosen[:2]
         s.player_list[msg.author]['loving'] = [option_list[chosen_is[0]],option_list[chosen_is[1]]]
         print(s.player_list[msg.author]['loving'])
-        await msg.author.send(CUPID_CHOSE_COUPLE.format(couple=' und '.join([user.mention + ' ({})'.format(get_name_discriminator(user)) for user in s.player_list[msg.author]['loving']])))
+        await msg.author.send(CUPID_CHOSE_COUPLE.format(couple=' und '.join([mention_in_dm(user) for user in s.player_list[msg.author]['loving']])))
         # Die Verliebten informieren
         lover1 = s.player_list[msg.author]['loving'][0]
         lover2 = s.player_list[msg.author]['loving'][1]
-        await lover1.send(NOTIFY_LOVER.format(other_lover=lover2.mention + ' ({}) '.format(get_name_discriminator(lover2))))
-        await lover2.send(NOTIFY_LOVER.format(other_lover=lover1.mention + ' ({}) '.format(get_name_discriminator(lover1))))
+        await lover1.send(NOTIFY_LOVER.format(other_lover=mention_in_dm(lover2)))
+        await lover2.send(NOTIFY_LOVER.format(other_lover=mention_in_dm(lover1)))
         # Phase ist beendet; Entscheidung, was als nächstes passiert
         s.phase = ''
         await s.bot.get_channel(s.game_channel).send(CUPID_FINISHED)
@@ -364,7 +372,7 @@ async def choosing_amor(s, msg):
         else:
             await standard_night(s)
     else:
-        await msg.author.send(NOT_UNDERSTAND + CUPID_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_UNDERSTAND + CUPID_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
 
 
 async def wake_wild_child(s):
@@ -377,7 +385,7 @@ async def wake_wild_child(s):
         await s.bot.get_channel(s.game_channel).send(WILD_CHILD_FINISHED)
         await standard_night(s)
     else:
-        await wild_child.send(WILD_CHILD_INPUT.format(options='\n'.join([str(i+1)+'. ' + player.mention+ ' ({}) '.format(get_name_discriminator(player)) for i,player in enumerate(still_alive(s)) if player.id != wild_child.id])))
+        await wild_child.send(WILD_CHILD_INPUT.format(options='\n'.join([str(i+1)+'. ' + mention_in_dm(player) for i,player in enumerate(still_alive(s)) if player.id != wild_child.id])))
         s.phase = WILD_CHILD_PHASE
         # Warte auf Antwort vom wildem Kind
 
@@ -388,19 +396,19 @@ async def choosing_wild_child(s, msg):
     try:
         chosen_i = int(msg.content.strip())-1
     except ValueError:
-        await msg.author.send(NOT_UNDERSTAND + WILD_CHILD_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_UNDERSTAND + WILD_CHILD_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
         return
     if valid_choice(chosen_i, option_list):
         chosen = option_list[chosen_i]
         print(chosen)
         s.player_list[msg.author]['role model'] = chosen
-        await msg.author.send(WILD_CHILD_CHOSE.format(player=chosen.mention + ' ({})'.format(get_name_discriminator(chosen))))
+        await msg.author.send(WILD_CHILD_CHOSE.format(player=mention_in_dm(chosen)))
         # Phase beendet; Die Spezialrollen für die erste Nacht sind fertig.
         s.phase = ''
         await s.bot.get_channel(s.game_channel).send(WILD_CHILD_FINISHED)
         await standard_night(s)
     else:
-        await msg.author.send(NOT_UNDERSTAND + WILD_CHILD_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_UNDERSTAND + WILD_CHILD_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
 
 
 async def wake_healer(s):
@@ -423,7 +431,7 @@ async def wake_healer(s):
             await wake_werewolves(s)
     else:
         await s.bot.get_channel(s.game_channel).send(HEALER_WAKE)
-        await healer.send(HEALER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(still_alive(s))])))
+        await healer.send(HEALER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(still_alive(s))])))
         s.phase = HEALER_PHASE
         # Warte auf Antwort vom Heiler
 
@@ -437,7 +445,7 @@ async def choosing_healer(s, msg):
     try:
         chosen_i = int(msg.content.strip())-1
     except ValueError:
-        await msg.author.send(NOT_A_NUMBER + HEALER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_A_NUMBER + HEALER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
         return
     if valid_choice(chosen_i, option_list):
         # Wen will er beschützen?
@@ -446,7 +454,7 @@ async def choosing_healer(s, msg):
         print(chosen)
         #if chosen != s.player_list[msg.author]['chosen']:  # Wurde die Person in der vorherigen Runde auch schon gewählt?
         s.player_list[msg.author]['chosen'] = chosen
-        await msg.author.send(HEALER_CHOSE.format(player=chosen.mention + ' ({})'.format(get_name_discriminator(chosen))))
+        await msg.author.send(HEALER_CHOSE.format(player=mention_in_dm(chosen)))
         # Phase beendet; Entscheidung, was als nächstes passiert
         s.phase = ''
         await s.bot.get_channel(s.game_channel).send(HEALER_FINISHED)
@@ -459,7 +467,7 @@ async def choosing_healer(s, msg):
         #else:
         #    await msg.author.send(NOT_ALIVE + HEALER_INPUT)
     else:
-        await msg.author.send(NOT_UNDERSTAND + HEALER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_UNDERSTAND + HEALER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
 
 
 async def wake_seer(s):
@@ -476,7 +484,7 @@ async def wake_seer(s):
         await wake_werewolves(s)
     else:
         await s.bot.get_channel(s.game_channel).send(SEER_WAKE)
-        await seer.send(SEER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(still_alive(s)) if player.id != seer.id])))
+        await seer.send(SEER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(still_alive(s)) if player.id != seer.id])))
         s.phase = SEER_PHASE
         # Warte auf Antwort von der Seherin
 
@@ -487,14 +495,14 @@ async def choosing_seer(s, msg):
     try:
         chosen_i = int(msg.content.strip())-1
     except ValueError:
-        await msg.author.send(NOT_A_NUMBER + SEER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_A_NUMBER + SEER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
         return
     if valid_choice(chosen_i, option_list):
         # Wen will die Seherin überprüfen?
         #if is_alive(s, chosen.id): # Lebt die Person noch?
         checked_person = option_list[chosen_i]
         print(checked_person)
-        await msg.author.send(SEER_SEE_ROLE.format(player=checked_person.mention + ' ({})'.format(get_name_discriminator(checked_person)), role=s.player_list[checked_person]['role']))
+        await msg.author.send(SEER_SEE_ROLE.format(player=mention_in_dm(checked_person), role=s.player_list[checked_person]['role']))
         # Phase beendet; Werwölfe sind als nächstes dran
         s.phase = ''
         await s.bot.get_channel(s.game_channel).send(SEER_FINISHED)
@@ -502,13 +510,13 @@ async def choosing_seer(s, msg):
         #else:
         #    await msg.author.send(NOT_ALIVE + SEER_INPUT)
     else:
-        await msg.author.send(NOT_UNDERSTAND + SEER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_UNDERSTAND + SEER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
 
 
 async def wake_werewolves(s):
     await s.bot.get_channel(s.game_channel).send(WEREWOLVES_WAKE)
     werewolves = [x for x in s.player_list.keys() if not s.player_list[x]['good'] and s.player_list[x]['alive']]
-    await s.bot.get_channel(s.werewolf_channel).send(' '.join([w.mention for w in werewolves]) + WEREWOLVES_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(still_alive(s)) if not is_bad(s,player.id)])))
+    await s.bot.get_channel(s.werewolf_channel).send(' '.join([w.mention for w in werewolves]) + WEREWOLVES_INPUT.format(options='\n'.join([str(i + 1) + '. ' + get_name_discriminator(player) for i, player in enumerate(still_alive(s)) if not is_bad(s,player.id)])))
     s.phase = WEREWOLVES_PHASE
     # Warte auf Antwort von den Werwölfen
 
@@ -620,7 +628,7 @@ async def wake_white_werewolf(s):
         await s.bot.get_channel(s.game_channel).send(WHITE_WEREWOLF_WAKE)
         option_list = [p for p in still_alive(s) if is_bad(s,p.id) and p.id != white_werewolf.id]
         if option_list:
-            await white_werewolf.send(WHITE_WEREWOLF_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+            await white_werewolf.send(WHITE_WEREWOLF_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
             s.phase = WHITE_WEREWOLF_PHASE
         else:
             await white_werewolf.send(NO_COMRADE_LEFT)
@@ -649,7 +657,7 @@ async def choosing_white_werewolf(s, msg):
     try:
         chosen_i = int(msg.content.strip()) - 1
     except ValueError:
-        await msg.author.send(NOT_A_NUMBER + WHITE_WEREWOLF_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_A_NUMBER + WHITE_WEREWOLF_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
         return
     if valid_choice(chosen_i, option_list):
         # Wen will der weiße Werwolf fressen?
@@ -663,7 +671,7 @@ async def choosing_white_werewolf(s, msg):
                 return
         # Phase beendet; Entscheidung, was als nächstes passiert
         s.phase = ''
-        await msg.author.send(ATE.format(victim=comrade.mention + ' ({})'.format(get_name_discriminator(comrade))))
+        await msg.author.send(ATE.format(victim=mention_in_dm(comrade)))
         s.died[1] = comrade
         healer = get_player(s, 'Heiler')
         if healer:
@@ -680,7 +688,7 @@ async def choosing_white_werewolf(s, msg):
         #elif not is_alive(s, chosen.id):
         #    await msg.author.send(NOT_ALIVE + WHITE_WEREWOLF_INPUT)
     else:
-        await msg.author.send(NOT_UNDERSTAND + WHITE_WEREWOLF_INPUT.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_UNDERSTAND + WHITE_WEREWOLF_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
 
 
 async def wake_witch(s):
@@ -702,18 +710,18 @@ async def wake_witch(s):
             # Wenn sie noch einen Heiltrank hat, dann soll sie diesen benutzen können
             if s.died[0]:
                 s.phase = WITCH_PHASE_HEAL
-                await witch.send(s.died[0].mention + ' ({}) '.format(get_name_discriminator(s.died[0])) + WITCH_INPUT_HEAL)
+                await witch.send(mention_in_dm(s.died[0]) + WITCH_INPUT_HEAL)
                 # Warte auf Antwort von der Hexe
                 return
             else:
                 await witch.send(NO_ONE_DIED)
                 s.phase = WITCH_PHASE_KILL
-                await witch.send(WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(still_alive(s)) if player.id != witch.id])))
+                await witch.send(WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(still_alive(s)) if player.id != witch.id])))
         elif 'Gifttrank' in tranks:
             await witch.send(WITCH_ALREADY_HEALED)
             # Wenn sie keinen Heiltrank mehr hat oder niemand gestorben ist, soll sie direkt den Gifttrank benutzen können
             s.phase = WITCH_PHASE_KILL
-            await witch.send(WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(still_alive(s)) if player.id != witch.id])))
+            await witch.send(WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(still_alive(s)) if player.id != witch.id])))
         else:
             # Die Hexe hat keine Tränke mehr und kann nichts machen
             await witch.send(WITCH_NO_TRANKS)
@@ -728,19 +736,19 @@ async def choosing_witch_heal(s, msg):
     if msg.content.lower().strip() == 'ja':
         # Sie möchte das Opfer retten
         del tranks[tranks.index('Heiltrank')]
-        await msg.author.send(WITCH_HEALED.format(player=s.died[0].mention + ' ({}) '.format(get_name_discriminator(s.died[0]))))
+        await msg.author.send(WITCH_HEALED.format(player=mention_in_dm(s.died[0])))
         s.died[0] = None
     elif msg.content.lower().strip() == 'nein':
         # Sie möchte das Opfer nicht retten
-        await msg.author.send(WITCH_NOT_HEALED.format(player=s.died[0].mention + ' ({})'.format(get_name_discriminator(s.died[0]))))
+        await msg.author.send(WITCH_NOT_HEALED.format(player=mention_in_dm(s.died[0])))
     else:
-        await msg.author.send(NOT_UNDERSTAND + s.died[0].mention + ' ({}) {}'.format(get_name_discriminator(s.died[0]), WITCH_INPUT_HEAL))
+        await msg.author.send(NOT_UNDERSTAND + mention_in_dm(s.died[0]) + '\n' + WITCH_INPUT_HEAL)
         return
     s.phase = ''
     if 'Gifttrank' in tranks:
         # Hat sie noch einen Gifttrank, soll sie ihn benutzen können
         s.phase = WITCH_PHASE_KILL
-        await msg.author.send(WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(still_alive(s)) if player.id != witch.id])))
+        await msg.author.send(WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(still_alive(s)) if player.id != witch.id])))
     else:
         await msg.author.send(WITCH_ALREADY_KILLED)
 
@@ -759,7 +767,7 @@ async def choosing_witch_kill(s, msg):
     try:
         chosen_i = int(msg.content.strip()) - 1
     except ValueError:
-        await msg.author.send(NOT_A_NUMBER + WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_A_NUMBER + WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
         return
     witch = get_player(s, WITCH_ROLE)
     tranks = s.player_list[witch]['tranks']
@@ -775,16 +783,16 @@ async def choosing_witch_kill(s, msg):
                 return
         del tranks[tranks.index('Gifttrank')]
         killed_person = chosen
-        await msg.author.send(WITCH_KILLED.format(victim=killed_person.mention + ' ({})'.format(get_name_discriminator(killed_person))))
+        await msg.author.send(WITCH_KILLED.format(victim=mention_in_dm(killed_person)))
         s.died[2] = killed_person
         # Phase beendet; der Tag bricht an
         s.phase = ''
         await s.bot.get_channel(s.game_channel).send(WITCH_FINISHED)
         await daytime(s)
         #elif not is_alive(s, chosen.id):
-        #    await msg.author.send(NOT_ALIVE + WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        #    await msg.author.send(NOT_ALIVE + WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
     else:
-        await msg.author.send(NOT_UNDERSTAND + WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + player.mention + ' ({}) '.format(get_name_discriminator(player)) for i, player in enumerate(option_list)])))
+        await msg.author.send(NOT_UNDERSTAND + WITCH_INPUT_KILL.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
 
 
 async def daytime(s):

@@ -1,10 +1,3 @@
-- ready/unready
-- start
-    -> genug Spieler? -- Starten bzw. weiterhin warten
-- Rolleneingabe
-    -> Richtige Rollen und genug Rollen? -- Rollen verteilen bzw. auf neue Eingabe warten
-- Rollenverteilung: Jeder Spieler erhält eine Rolle und bekommt einen Dict-Eintrag
-
 - Spiel:
   Es funktioniert: Seherin, Hexe, Dieb, Werwolf, heiler, jäger, alter mann, amor, dorfdepp, sündenbock
   noch zu testen:
@@ -15,4 +8,4 @@
 
 
 TODO: wildes Kind stirbt, kann noch abstimmen? muss noch abstimmen?
-TODO: jäger pingt zum umbringen
+TODO: Testen, ob das mit der Liste funktioniert
