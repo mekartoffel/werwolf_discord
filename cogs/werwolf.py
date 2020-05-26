@@ -279,7 +279,9 @@ class Werwolf(commands.Cog):
                         game.current_roles = [r.strip() for r in message.content.split(',')]
                         game.current_roles = [' '.join([part.capitalize() for part in r.split(' ')]) for r in game.current_roles]
                         print('Rollen: ' + str(game.current_roles))
-                        if not correct_roles(game, self.role_list):
+                        if message.content.startswith('?'):
+                            pass
+                        elif not correct_roles(game, self.role_list):
                             await message.channel.send(SOMETHING_WRONG.format(player=message.author.mention,number_players=str(len(game.ready_list))))
                         else:
                             await message.channel.send(ROLES.format(roles='\n'.join(game.current_roles)))

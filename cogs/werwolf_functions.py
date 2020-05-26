@@ -515,10 +515,12 @@ async def confirming_werewolves(s, msg):
         s.phase = ''
         await s.bot.get_channel(s.game_channel).send(WEREWOLVES_FINISHED)
         healer = get_player(s, HEALER_ROLE)
-        if get_player(s, HEALER_ROLE):
+        if healer:
             # Wenn der Heiler diese Person schützt, wird sie aber nicht sterben
-            if s.died[0] == s.player_list[healer]['chosen']:
-                s.died[0] = None
+            if is_alive(s, healer.id):
+                #Aber auch nur, wenn er noch lebt
+                if s.died[0] == s.player_list[healer]['chosen']:
+                    s.died[0] = None
         for c, v in s.player_list.items():
             if is_alive(s, c.id) and is_bad(s, c.id):
                 v['citizen'] = None
