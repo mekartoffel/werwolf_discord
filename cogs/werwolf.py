@@ -69,7 +69,8 @@ class Werwolf(commands.Cog):
     @commands.is_owner()
     async def test(self, ctx):
         game: Game = self.games[ctx.guild.id]
-        game.current_roles = ['Dieb', 'Hexe', 'Seherin']
+        game.current_roles = ['Heiler', 'Hexe', 'Seherin']
+        game.ready_list.append(ctx.message.author)
         game.playing = True
         for i in range(len(game.current_roles) - 2):
             role = game.current_roles[i] = ' '.join([part.capitalize() for part in game.current_roles[i].split(' ')])
@@ -79,8 +80,8 @@ class Werwolf(commands.Cog):
             game.player_list[ctx.message.author] = role_info
             del game.player_list[ctx.message.author]['wake up']
             del game.player_list[ctx.message.author]['description']
-            print(game.player_list)
-        await wake_thief(game)
+            print(game)
+        await wake_healer(game)
 
     @commands.command(pass_context=True,
                       description='Beschreibung der verschiedenen Rollen.',

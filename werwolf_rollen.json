@@ -137,7 +137,7 @@
     "lives": 1,
     "alive": 1,
     "voted for": null,
-    "chosen": "",
+    "chosen": null,
     "description": "Wenn der Heiler nachts vor den Werwölfen aufgerufen wird, wählt er einen Spieler. Der so bestimmte Spieler wird in dieser Nacht (und nur in dieser Nacht) gegen die Wölfe geschützt sein. Wenn er von ihnen als Opfer ausgewählt wird, scheidet er nicht aus dem Spiel aus.\nDer Heiler hat das Recht, sich selbst zu schützen. Der Heiler darf nicht in zwei aufeinanderfolgenden Nächten denselben Spieler schützen."
   },
   "Alter Mann": {
