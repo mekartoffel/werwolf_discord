@@ -3,6 +3,7 @@ import json
 from discord.ext import commands
 from cogs.werwolf_functions import *
 from typing import Dict
+from private import *
 
 
 class Game:
@@ -17,7 +18,7 @@ class Game:
         self.ready_list = []
         self.player_list = {}
         self.current_roles = []
-        self.died = [None, None, None] # [von werwölfen, von weißer werwolf, von hexe]
+        self.died = [None, None, None]  # [von werwölfen, von weißer werwolf, von hexe]
         self.new_vote = False
 
         self.playerID = None  # welcher Spieler hat das Spiel gestartet?
@@ -37,6 +38,7 @@ class Werwolf(commands.Cog):
     PLAYER_MIN = 1
     global_playerlist = []
 
+
     def __init__(self, bot):
         self.bot = bot
         self.games = {v: Game(v, k['game channel'], k['werewolf channel'], bot, self) for v, k in server_dict.copy().items()}
@@ -47,7 +49,15 @@ class Werwolf(commands.Cog):
                       brief='Beschreibung des Spiels Werwolf.')
     @commands.check(is_game_channel_or_dm)
     async def descr(self, ctx):
-        await ctx.send('TODO')  # TODO Werwolf beschreiben
+        await ctx.send('Thematisch geht es darum, dass das kleine Dörfchen Düsterwald von Werwölfen heimgesucht wird. Die Gruppe der Bürger versucht die Wölfe, die sich als Bürger getarnt haben, zu entlarven. Dagegen versuchen die Wölfe, als einzige zu überleben und Widersacher auszuschalten. Darüber hinaus gibt es Charaktere mit eigenen Zielen. ||(Geklaut von Wikipedia)||\n(Für Infos, was für Charaktere es gibt, sende `?roles` und für Infos zu einem speziellen Charakter sende `?roles [Charaktername]`.)')
+
+    @commands.command(pass_context=True,
+                      hidden=True,
+                      description='Beschreibung des Spiels Werwolf.',
+                      brief='Beschreibung des Spiels Werwolf.')
+    @commands.check(is_game_channel_or_dm)
+    async def beschreibung(self, ctx):
+        await self.descr.invoke(ctx)
 
     @commands.command(pass_context=True,
                       hidden=True,
@@ -55,7 +65,7 @@ class Werwolf(commands.Cog):
                       brief='TEST')
     @commands.is_owner()
     async def test(self, ctx):
-        game: Game = self.games[ctx.guild.id]
+        game: Game = self.games[TEST_SERVER_ID]
         game.current_roles = ['Heiler', 'Hexe', 'Seherin']
         game.ready_list.append(ctx.message.author)
         game.playing = True
@@ -70,6 +80,7 @@ class Werwolf(commands.Cog):
             print(game)
         await wake_healer(game)
 
+
     @commands.command(pass_context=True,
                       description='Beschreibung der verschiedenen Rollen.',
                       brief='Beschreibung der verschiedenen Rollen.')
@@ -79,6 +90,7 @@ class Werwolf(commands.Cog):
         print(arg)
         print(self.ww_roles[arg])
         await ctx.send(self.ww_roles[arg]['description'])
+
 
     @roles.error
     async def roles_on_error(self, ctx, error):
