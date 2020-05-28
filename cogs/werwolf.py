@@ -5,7 +5,7 @@ from cogs.werwolf_functions import *
 from typing import Dict
 
 
-class Game():
+class Game:
 
     def __init__(self, server_id, game_channel, werewolf_channel, bot, ww):
         self.ww = ww
@@ -29,8 +29,6 @@ class Game():
 
 
 class Werwolf(commands.Cog):
-    ww_data = {}
-    ww_roles = {}
     with open('werwolf_rollen.json', 'r', encoding='utf-8') as ww_data:
         ww_roles = json.load(ww_data)
 
@@ -38,17 +36,6 @@ class Werwolf(commands.Cog):
 
     PLAYER_MIN = 1
     global_playerlist = []
-    #player_list = {}
-    #current_roles = []
-    #died = [None, None, None]  # [von werwölfen, von weißer werwolf, von hexe]
-    #new_vote = False
-
-    #playerID = None  # welcher Spieler hat das Spiel gestartet?
-    #playing = False  # läuft ein Spiel?
-    #phase = ''  # Was passiert gerade?
-
-    #game_status: Dict[str, bool] = {'waiting for selection': False, 'selecting': False, 'playing': False}
-    #round_no = 1
 
     def __init__(self, bot):
         self.bot = bot

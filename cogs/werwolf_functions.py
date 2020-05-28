@@ -170,7 +170,7 @@ def valid_choice(i,lst):
     :param lst: List of possible options
     :return: True if it's a valid choice
     """
-    return (i >= 0 and i < len(lst))
+    return 0 <= i < len(lst)
 
 
 def is_bad(s, player_id):
