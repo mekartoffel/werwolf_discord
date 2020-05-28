@@ -307,7 +307,7 @@ class Werwolf(commands.Cog):
                 if message.author == get_player(game, THIEF_ROLE) and game.phase == THIEF_PHASE:
                     await choosing_thief(game, message, self.ww_roles)
                 elif message.author == get_player(game, CUPID_ROLE) and game.phase == CUPID_PHASE:
-                    await choosing_amor(game, message)
+                    await choosing_cupid(game, message)
                 elif message.author == get_player(game, WILD_CHILD_ROLE) and game.phase == WILD_CHILD_PHASE:
                     await choosing_wild_child(game, message)
                 elif message.author == get_player(game, HEALER_ROLE) and game.phase == HEALER_PHASE:

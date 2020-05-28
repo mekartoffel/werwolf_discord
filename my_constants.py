@@ -2,10 +2,10 @@
 NOT_UNDERSTAND = 'Ich verstehe deine Eingabe nicht.\n'
 NOT_A_NUMBER = 'Das war keine Zahl.\n'
 NOT_ALIVE = 'Die Person lebt leider nicht mehr...\n'
-INPUT_ONE = 'Benutze dafür bitte den __globalen oder Servernamen der Person (*ohne* `@`).__'
-INPUT_ONE = '\nZur Wahl gibt es folgende Personen: \n{options}'
-INPUT_MORE = 'Benutze dafür bitte den __globalen oder Servernamen der Personen (*ohne* `@`)__ und trenne mit einem *Komma*.'
-INPUT_MORE = '\nZur Wahl gibt es folgende Personen: \n{options} \nTrenne mit einem Komma.'
+#INPUT_ONE = 'Benutze dafür bitte den __globalen oder Servernamen der Person (*ohne* `@`).__'
+INPUT_ONE = '\nZur Wahl gibt es folgende Personen: \n{options}\n'
+#INPUT_MORE = 'Benutze dafür bitte den __globalen oder Servernamen der Personen (*ohne* `@`)__ und trenne mit einem *Komma*.'
+INPUT_MORE = '\nZur Wahl gibt es folgende Personen: \n{options} \nTrenne mit einem Komma.\n'
 
 #rollen
 THIEF_ROLE = 'Dieb'
@@ -78,35 +78,35 @@ THIEF_FINISHED = 'Der **Dieb** hat eine Identität gestohlen und geht zufrieden 
 
 #amor
 CUPID_WAKE = '**Amor** wacht auf. Er hat auf einmal große Lust, zwei Leute mit seinen Liebespfeilen abzuschießen, um ein bisschen mehr Spannung in seinem Leben zu haben.'
-CUPID_INPUT = 'Wen möchtest du mit deinen Liebespfeilen abschießen? (Schicke mir bitte die Zahlen der Personen, die du abschießen möchtest.) ' + INPUT_MORE
+CUPID_INPUT = 'Wen möchtest du mit deinen Liebespfeilen abschießen? __(Schicke mir bitte die **Zahl** der Personen, die du abschießen möchtest.)__ ' + INPUT_MORE
 CUPID_CHOSE_COUPLE = 'Okay, die beiden sind nun verliebt: {couple}'
 NOTIFY_LOVER = 'Du bist jetzt verliebt in {other_lover} '
 CUPID_FINISHED = '**Amor** hat sich zwei Personen ausgesucht, die sich ineinander verlieben sollen und geht in Ruhe schlafen.'
 
 #wildes kind
 WILD_CHILD_WAKE = 'Das **wilde Kind** wacht auf. Es sucht sich ein Vorbild. Wenn dieses stirbt, kehrt das wilde Kind zurück zu den Werwölfen und wird deren Verbündeter.'
-WILD_CHILD_INPUT = 'Wer soll dein Vorbild sein? (Schicke mir bitte die Zahl der Person, die dein Vorbild sein soll.)' + INPUT_ONE
+WILD_CHILD_INPUT = 'Wer soll dein Vorbild sein? __(Schicke mir bitte die **Zahl** der Person, die dein Vorbild sein soll.)__' + INPUT_ONE
 WILD_CHILD_CHOSE = 'Okay, diese Person ist nun dein Vorbild: {player}'
 WILD_CHILD_FINISHED = 'Das **wilde Kind** hat sich ein Vorbild ausgesucht und geht wieder schlafen.'
 WILD_CHILD_RM_DIED = 'Dein Vorbild ist gestorben. Du agierst jetzt als Werwolf.'
 
 #heiler
 HEALER_WAKE = 'Der **Heiler** erwacht. Er hat ein ganz ungutes Gefühl und möchte deshalb diese Nacht jemanden beschützen.'
-HEALER_INPUT = 'Welche Person möchtest du beschützen? (Schicke mir bitte die Zahl der Person, die du beschützen möchtest.) ' + INPUT_ONE + '(Du kannst auch dich selbst schützen.)'
+HEALER_INPUT = 'Welche Person möchtest du beschützen? __(Schicke mir bitte die **Zahl** der Person, die du beschützen möchtest.)__' + INPUT_ONE + '(Du kannst auch dich selbst schützen.)'
 HEALER_CHOSE = 'Okay, diese Person beschützt du heute Nacht: {player}'
 HEALER_SAME_IN_ROW = 'Du kannst nicht zwei Mal hintereinander dieselbe Person schützen. Wähle bitte jemand anderes.'
 HEALER_FINISHED = 'Der **Heiler** hat eine Person gefunden, die es würdig ist, beschützt zu werden und geht wieder schlafen.'
 
 #seherin
 SEER_WAKE = 'Die **Seherin** wacht auf. Sie verdächtigt jemanden und möchte deshalb die Identität dieser Person in Erfahrung bringen.'
-SEER_INPUT = 'Wen möchtest du überprüfen? (Schicke mir bitte die Zahl der Person, deren Identität du wissen möchtest.) ' + INPUT_ONE
+SEER_INPUT = 'Wen möchtest du überprüfen? __(Schicke mir bitte die **Zahl** der Person, deren Identität du wissen möchtest.)__' + INPUT_ONE
 SEER_SEE_ROLE = '{player} hat folgende Identität: {role}'
 SEER_FINISHED = 'Die **Seherin** hat etwas Interessantes gesehen und geht wieder schlafen.'
 
 #werwolf
 WEREWOLVES_WELCOME = 'Willkommen!\n{werewolves}, ihr seid für diese Runde die Werwölfe. Hier ist Raum für euch zum Diskutieren und Abstimmen.'
 WEREWOLVES_WAKE = 'Die **Werwölfe** wachen auf und haben richtig Hunger. Sie müssen sich nur noch einigen, wen sie diese Nacht fressen wollen.'
-WEREWOLVES_INPUT = ', wer soll gefressen werden? (Schickt mir bitte die Zahl der Person, die gefressen werden soll.) ' + INPUT_ONE + 'Wenn jemand nicht wählen will oder kann, kann er auch `Enthaltung` eingeben.\nIhr könnt euch auch vorher absprechen.'
+WEREWOLVES_INPUT = ', wer soll gefressen werden? __(Schickt mir bitte die **Zahl** der Person, die gefressen werden soll.)__' + INPUT_ONE + 'Wenn jemand nicht wählen will oder kann, kann er auch `Enthaltung` eingeben.\nIhr könnt euch auch vorher absprechen.'
 WEREWOLVES_LOVE = 'Du kannst deinen Liebespartner doch nicht fressen! 💔'
 WEREWOLVES_DONT_CARE = '{player} ist es egal.'
 WEREWOLVES_CHOSE = '{player} möchte folgende Person fressen: {victim}'
@@ -117,7 +117,7 @@ WEREWOLVES_FINISHED = 'Die **Werwölfe** haben ihr Opfer gefunden und gehen wied
 
 #weisser werwolf
 WHITE_WEREWOLF_WAKE = 'Der **weiße Werwolf** erwacht. Er möchte eventuell einen seiner Werwolf-Kameraden fressen.'
-WHITE_WEREWOLF_INPUT = 'Wen möchtest du fressen? (Schicke mir bitte die Zahl der Person, die du fressen möchtest.) ' + INPUT_ONE + ' (Wenn du niemanden fressen möchtest, antworte mit `Niemanden`)'
+WHITE_WEREWOLF_INPUT = 'Wen möchtest du fressen? __(Schicke mir bitte die **Zahl** der Person, die du fressen möchtest.)__' + INPUT_ONE + '(Wenn du niemanden fressen möchtest, antworte mit `Niemanden`)'
 WHITE_WEREWOLF_NOT_COMRADE = 'Die Person ist keiner deiner Werwolf-Kameraden...\n' + WHITE_WEREWOLF_INPUT
 NO_COMRADE_LEFT = 'Es ist kein anderer Werwolf am Leben, also gehst du wieder in Ruhe schlafen.'
 WHITE_WEREWOLF_LOVE = 'Du kannst deinen Liebespartner doch nicht fressen! 💔'
@@ -134,7 +134,7 @@ WITCH_NOT_HEALED = '{player} wurde nicht von dir gerettet.'
 WITCH_ALREADY_KILLED = 'Deinen Gifttrank hast du schon genutzt. Also gehst du wieder schlafen.'
 WITCH_KILLED = 'Du hast folgende Person vergiftet: {victim}'
 WITCH_NO_TRANKS = 'Du hast keine Tränke mehr, die du nutzen kannst. (Wir warten jetzt pseudomäßig trotzdem. 😈)'
-WITCH_INPUT_KILL = 'Möchtest du noch jemanden mit deinem Gifttrank vergiften? (Schicke mir bitte die Zahl der Person, die du töten möchtest.) ' + INPUT_ONE + ' (Wenn du niemanden töten willst, antworte einfach mit `Nein`)'
+WITCH_INPUT_KILL = 'Möchtest du noch jemanden mit deinem Gifttrank vergiften? __(Schicke mir bitte die **Zahl** der Person, die du töten möchtest.)__' + INPUT_ONE + '(Wenn du niemanden töten willst, antworte einfach mit `Nein`)'
 WITCH_LOVE = 'Du kannst deinen Liebespartner doch nicht vergiften! 💔'
 WITCH_NO_KILLING = 'Du willst niemanden vergiften und gehst wieder schlafen.'
 WITCH_FINISHED = 'Die **Hexe** hat eventuell einen oder beide ihrer Tränke verwendet und geht wieder schlafen.'

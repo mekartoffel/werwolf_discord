@@ -8,4 +8,3 @@
 
 
 TODO: wildes Kind stirbt, kann noch abstimmen? muss noch abstimmen?
-TODO: Testen, ob das mit der Liste funktioniert
