@@ -863,10 +863,10 @@ async def good_to_wild(s):
 
 async def choosing_hunter(s, msg):
     try:
-        chosen_id = int(re.findall(r'(?<=<@!)\d{18}(?=>)', msg.content)[0])
+        chosen_id = int(re.findall(r'(?<=<@!)\d{17,19}(?=>)', msg.content)[0])
     except IndexError:
         try:
-            chosen_id = int(re.findall(r'(?<=<@)\d{18}(?=>)', msg.content)[0])
+            chosen_id = int(re.findall(r'(?<=<@)\d{17,19}(?=>)', msg.content)[0])
         except IndexError:
             return
     chosen = s.bot.get_user(chosen_id)
@@ -944,10 +944,10 @@ async def voting(s, msg):
         return
     try:
         try:
-            chosen_id = int(re.findall(r'(?<=<@!)\d{18}(?=>)', msg.content)[0])
+            chosen_id = int(re.findall(r'(?<=<@!)\d{17,19}(?=>)', msg.content)[0])
         except IndexError:
             try:
-                chosen_id = int(re.findall(r'(?<=<@)\d{18}(?=>)', msg.content)[0])
+                chosen_id = int(re.findall(r'(?<=<@)\d{17,19}(?=>)', msg.content)[0])
             except IndexError:
                 return
         chosen = s.bot.get_user(chosen_id)
