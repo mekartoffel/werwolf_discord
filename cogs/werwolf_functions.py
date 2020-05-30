@@ -526,13 +526,13 @@ async def wake_werewolves(s):
 
 async def choosing_werewolves(s, msg):
     if 'enthaltung' in msg.content.lower() and is_alive(s, msg.author.id):
-        s.player_list[msg.author]['citizen'] = msg.guild.get_member(BOT_ID)
+        s.player_list[msg.author]['citizen'] = msg.guild.me
         await s.bot.get_channel(s.werewolf_channel).send(WEREWOLVES_DONT_CARE.format(player=msg.author.mention))
         if werewolves_chosen(s):
             # Erst, wenn alle gewählt haben, wird gefragt, ob sie mit der Wahl einverstanden sind.
             citizens = []
             for p, v in s.player_list.items():
-                if not v['good'] and v['citizen'] != msg.guild.get_member(BOT_ID):
+                if not v['good'] and v['citizen'] != msg.guild.me:
                     citizens.append(v['citizen'])
             try:
                 s.died[0] = max(dict(Counter(citizens)).items(), key=operator.itemgetter(1))[0]
@@ -570,7 +570,7 @@ async def choosing_werewolves(s, msg):
                 # Erst, wenn alle gewählt haben, wird gefragt, ob sie mit der Wahl einverstanden sind.
                 citizens = []
                 for p, v in s.player_list.items():
-                    if not v['good'] and v['citizen'] != msg.guild.get_member(BOT_ID):
+                    if not v['good'] and v['citizen'] != msg.guild.me:
                         citizens.append(v['citizen'])
                 s.died[0] = max(dict(Counter(citizens)).items(), key=operator.itemgetter(1))[0]
                 if not s.died[0]:
@@ -863,10 +863,10 @@ async def good_to_wild(s):
 
 async def choosing_hunter(s, msg):
     try:
-        chosen_id = int(re.findall(r'(?<=<@!)\d{18}(?=>)', msg.content)[0])
+        chosen_id = int(re.findall(r'(?<=<@!)\d{17,19}(?=>)', msg.content)[0])
     except IndexError:
         try:
-            chosen_id = int(re.findall(r'(?<=<@)\d{18}(?=>)', msg.content)[0])
+            chosen_id = int(re.findall(r'(?<=<@)\d{17,19}(?=>)', msg.content)[0])
         except IndexError:
             return
     chosen = s.bot.get_user(chosen_id)
@@ -944,10 +944,10 @@ async def voting(s, msg):
         return
     try:
         try:
-            chosen_id = int(re.findall(r'(?<=<@!)\d{18}(?=>)', msg.content)[0])
+            chosen_id = int(re.findall(r'(?<=<@!)\d{17,19}(?=>)', msg.content)[0])
         except IndexError:
             try:
-                chosen_id = int(re.findall(r'(?<=<@)\d{18}(?=>)', msg.content)[0])
+                chosen_id = int(re.findall(r'(?<=<@)\d{17,19}(?=>)', msg.content)[0])
             except IndexError:
                 return
         chosen = s.bot.get_user(chosen_id)
