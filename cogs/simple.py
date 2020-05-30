@@ -1,4 +1,6 @@
 import asyncio
+import discord
+import datetime
 
 from discord.ext import commands
 
@@ -8,7 +10,7 @@ class Allgemein(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message:discord.Message):
         # Er soll aber nicht auf sich selbst reagieren
         if message.author == self.bot.user:
             return
@@ -22,8 +24,9 @@ class Allgemein(commands.Cog):
 
 
     @commands.command(pass_context=True,
-        description='Ist wie ein Echo: Gibt die gleiche Nachricht aus wie eingegeben wurde.',
-        brief='Wiederholt die eingegebene Nachricht.')
+                      hidden=True,
+                      description='Ist wie ein Echo: Gibt die gleiche Nachricht aus wie eingegeben wurde.',
+                      brief='Wiederholt die eingegebene Nachricht.')
     async def echo(self, ctx, *, argument):
         print(argument)
         await ctx.send(argument)
@@ -37,10 +40,20 @@ class Allgemein(commands.Cog):
             await ctx.send('Was soll ich wiederholen?')
 
 
+    @commands.command(name='ping',
+                      pass_context=True,
+                      hidden=True)
+    async def ping(self, ctx):
+        t_diff: datetime.timedelta = abs(ctx.message.created_at - datetime.datetime.utcnow())
+        e = discord.Embed(title='Pong!', description='Ping-Pong innerhalb von {} ms'.format(round(t_diff.total_seconds() * 1000, 2)),
+                          colour=discord.Colour.blurple())
+        await ctx.message.channel.send(embed=e)
+
+
     @commands.command(pass_context=True,
-        hidden=True,
-        brief='Hält den Bot an.',
-        description='Hält den Bot an. Kann nur vom Bot-Owner gemacht werden.')
+                      hidden=True,
+                      brief='Hält den Bot an.',
+                      description='Hält den Bot an. Kann nur vom Bot-Owner gemacht werden.')
     @commands.is_owner()
     async def stop(self, ctx):
         author = ctx.message.author.name
