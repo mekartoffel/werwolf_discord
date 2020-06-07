@@ -1,4 +1,4 @@
-from random import shuffle
+#from random import shuffle
 from private import *
 from my_constants import *
 from collections import Counter
@@ -8,6 +8,7 @@ import random
 import discord
 import asyncio
 import re
+import random
 
 
 def is_game_channel(ctx):
@@ -35,7 +36,10 @@ async def distribute_roles(s, ww_roles):
     :param ww_roles: Roles to distribute
     """
     werewolves = []
-    shuffle(s.current_roles)
+    r = random.randint(2,5)
+    print('shuffling {} times'.format(r))
+    for i in range(r):
+        random.shuffle(s.current_roles)
     for i, player in enumerate(s.ready_list):
         role = s.current_roles[i]
         role_info = ww_roles[role].copy()
@@ -431,7 +435,10 @@ async def wake_healer(s):
             await wake_werewolves(s)
     else:
         await s.bot.get_channel(s.game_channel).send(HEALER_WAKE)
-        option_list = still_alive(s)
+        if s.player_list[healer]['chosen']:
+            option_list = [p for p in still_alive(s) if p.id != s.player_list[healer]['chosen'].id]
+        else:
+            option_list = still_alive(s)
         await healer.send(HEALER_INPUT.format(options='\n'.join([str(i + 1) + '. ' + mention_in_dm(player) for i, player in enumerate(option_list)])))
         s.phase = HEALER_PHASE
         # Warte auf Antwort vom Heiler
