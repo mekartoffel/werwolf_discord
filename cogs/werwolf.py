@@ -69,6 +69,7 @@ class Werwolf(commands.Cog):
         game: Game = self.games[TEST_SERVER_ID]
         game.current_roles = ['Heiler', 'Hexe', 'Seherin']
         game.ready_list.append(ctx.message.author)
+        self.global_playerlist.append(ctx.message.author)
         game.playing = True
         for i in range(len(game.current_roles) - 2):
             role = game.current_roles[i] = ' '.join([part.capitalize() for part in game.current_roles[i].split(' ')])
