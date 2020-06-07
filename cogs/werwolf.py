@@ -219,10 +219,25 @@ class Werwolf(commands.Cog):
 
 
     @commands.command(pass_context=True,
+                      hidden=True,
                       description='Liste von Spielern, die noch nicht abgestimmt haben.',
                       brief='Liste von Spielern, die noch nicht abgestimmt haben.')
     @commands.check(is_game_channel)
     async def missing_votes(self, ctx):
+        await self.missing_vote.invoke(ctx)
+
+    @commands.command(pass_context=True,
+                      hidden=True,
+                      description='Liste von Spielern, die noch nicht abgestimmt haben.',
+                      brief='Liste von Spielern, die noch nicht abgestimmt haben.')
+    @commands.check(is_game_channel)
+    async def missingvote(self, ctx):
+        await self.missing_vote.invoke(ctx)
+
+    @commands.command(pass_context=True, description='Liste von Spielern, die noch nicht abgestimmt haben.',
+                      brief='Liste von Spielern, die noch nicht abgestimmt haben.')
+    @commands.check(is_game_channel)
+    async def missingvotes(self, ctx):
         await self.missing_vote.invoke(ctx)
 
 
