@@ -43,6 +43,13 @@ class Werwolf(commands.Cog):
         self.bot = bot
         self.games = {v: Game(v, k['game channel'], k['werewolf channel'], bot, self) for v, k in server_dict.copy().items()}
 
+    @commands.command(pass_context=True,
+                      description='Was muss ich tun, um Werwolf zu spielen?',
+                      brief='Was muss ich tun, um Werwolf zu spielen?')
+    async def werwolfinfo(self, ctx):
+        game: Game = self.games[ctx.guild.id]
+        await ctx.send('Zum Werwolf spielen geht zum Kanal <#{}> und gebt `?ready` ein. Wenn ihr das Spiel starten wollt, dann `?start` eingeben. Die Person, die den Start-Command eingegeben hat, wird dann die Rollen bestimmen, mit denen gespielt wird. Viel Spaß!'.format(game.game_channel))
+
 
     @commands.command(pass_context=True,
                       name='description',
