@@ -48,8 +48,8 @@ class Werwolf(commands.Cog):
         print(self.games)
 
     @commands.command(pass_context=True,
-                      description='Werwolf zu meinem Server hinzufügen. *Der Bot braucht dafür die Berechtigung, Kanäle zu verwalten!*',
-                      brief='Werwolf zu meinem Server hinzufügen.')
+                      description='Werwolf zum Server hinzufügen. *Der Bot braucht dafür die Berechtigung, Kanäle zu verwalten!*',
+                      brief='Werwolf zum Server hinzufügen.')
     @commands.check(no_werewolf_channel_yet)
     async def addwerewolf(self, ctx):
         with open('private.json', 'w', encoding='utf-8') as server_data:
@@ -82,7 +82,7 @@ class Werwolf(commands.Cog):
                       brief='Was muss ich tun, um Werwolf zu spielen?')
     async def werwolfinfo(self, ctx):
         game: Game = self.games[ctx.guild.id]
-        await ctx.send('Zum Werwolf spielen geht zum Kanal <#{}> und gebt `?ready` ein. Wenn ihr das Spiel starten wollt, dann `?start` eingeben. Die Person, die den Start-Command eingegeben hat, wird dann die Rollen bestimmen, mit denen gespielt wird. Viel Spaß!'.format(game.game_channel))
+        await ctx.send('Zum Werwolf spielen geht zum Kanal <#{}> und gebt `?ready` ein. Wenn ihr das Spiel starten wollt, dann `?start` eingeben. Die Person, die den Start-Command eingegeben hat, wird dann die Rollen bestimmen, mit denen gespielt wird. *(Achtet darauf, dass alle Spielern auch Nachrichten von Nicht-Freunden empfangen können!)*\nViel Spaß!'.format(game.game_channel))
 
 
     @commands.command(pass_context=True,
