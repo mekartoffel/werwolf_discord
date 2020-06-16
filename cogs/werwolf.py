@@ -1,4 +1,4 @@
-import json
+#import json
 
 from discord.ext import commands
 from cogs.werwolf_functions import *
@@ -33,6 +33,7 @@ class Werwolf(commands.Cog):
     with open('werwolf_rollen.json', 'r', encoding='utf-8') as ww_data:
         ww_roles = json.load(ww_data)
 
+
     role_list = list(ww_roles.keys())
 
     PLAYER_MIN = 1
@@ -41,7 +42,40 @@ class Werwolf(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.games = {v: Game(v, k['game channel'], k['werewolf channel'], bot, self) for v, k in server_dict.copy().items()}
+        #with open('private.json', 'r', encoding='utf-8') as server_data:
+        #    server_dict = json.load(server_data)
+        self.games = {int(v): Game(int(v), k['game channel'], k['werewolf channel'], bot, self) for v, k in server_dict.copy().items()}
+        print(self.games)
+
+    @commands.command(pass_context=True,
+                      description='Werwolf zu meinem Server hinzufügen. *Der Bot braucht dafür die Berechtigung, Kanäle zu verwalten!*',
+                      brief='Werwolf zu meinem Server hinzufügen.')
+    @commands.check(no_werewolf_channel_yet)
+    async def addwerewolf(self, ctx):
+        with open('private.json', 'w', encoding='utf-8') as server_data:
+            # Kann man datenschutztechnisch sicher besser loesen, aber da der Bot eh nur privat genutzt wird, spielt das erst mal nur eine kleinere Rolle
+            s_dict = json.load(server_data)
+            s_dict[str(ctx.guild.id)] = {}
+            ww_cat = await ctx.guild.create_category('Werewolf')
+            general_ww_channel = await ctx.guild.create_text_channel('general_werewolf', category=ww_cat)
+            s_dict[str(ctx.guild.id)]['game channel'] = general_ww_channel.id
+            ww_channel = await ctx.guild.create_text_channel('werewolves', category=ww_cat)
+            s_dict[str(ctx.guild.id)]['werewolf channel'] = ww_channel.id
+
+    @commands.command(pass_context=True,
+                      hidden=True,
+                      description='Werwolf zu meinem Server hinzufügen. *Der Bot braucht dafür die Berechtigung, Kanäle zu verwalten!*',
+                      brief='Werwolf zu meinem Server hinzufügen.')
+    async def addchannel(self, ctx):
+        with open('private.json', 'w', encoding='utf-8') as server_data:
+            # Kann man datenschutztechnisch sicher besser loesen, aber da der Bot eh nur privat genutzt wird, spielt das erst mal nur eine kleinere Rolle
+            if not server_dict[str(ctx.guild.id)]:
+                server_dict[str(ctx.guild.id)] = {}
+            test_cat = await ctx.guild.create_category('Test')
+            test_channel = await ctx.guild.create_text_channel('test_chan', category=test_cat)
+            server_dict[str(ctx.guild.id)]['test channel'] = test_channel.id
+            json.dump(server_dict, server_data, ensure_ascii=False)
+
 
     @commands.command(pass_context=True,
                       description='Was muss ich tun, um Werwolf zu spielen?',
@@ -59,6 +93,7 @@ class Werwolf(commands.Cog):
     async def descr(self, ctx):
         await ctx.send('Thematisch geht es darum, dass das kleine Dörfchen Düsterwald von Werwölfen heimgesucht wird. Die Gruppe der Bürger versucht die Wölfe, die sich als Bürger getarnt haben, zu entlarven. Dagegen versuchen die Wölfe, als einzige zu überleben und Widersacher auszuschalten. Darüber hinaus gibt es Charaktere mit eigenen Zielen. ||(Geklaut von Wikipedia)||\n(Für Infos, was für Charaktere es gibt, sende `?roles` und für Infos zu einem speziellen Charakter sende `?roles [Charaktername]`.)')
 
+
     @commands.command(pass_context=True,
                       hidden=True,
                       description='Beschreibung des Spiels Werwolf.',
@@ -66,6 +101,7 @@ class Werwolf(commands.Cog):
     @commands.check(is_game_channel_or_dm)
     async def beschreibung(self, ctx):
         await self.descr.invoke(ctx)
+
 
     @commands.command(pass_context=True,
                       hidden=True,
@@ -128,7 +164,6 @@ class Werwolf(commands.Cog):
             await ctx.send(ALREADY_READY)
         else:
             await ctx.send(ALREADY_SOMEWHERE)
-
 
     @commands.command(pass_context=True,
                       hidden=True,
@@ -225,7 +260,6 @@ class Werwolf(commands.Cog):
         else:
             await ctx.send(NOT_VOTING)
 
-
     @commands.command(pass_context=True,
                       hidden=True,
                       description='Liste von Spielern, die noch nicht abgestimmt haben.',
@@ -242,7 +276,8 @@ class Werwolf(commands.Cog):
     async def missingvote(self, ctx):
         await self.missing_vote.invoke(ctx)
 
-    @commands.command(pass_context=True, description='Liste von Spielern, die noch nicht abgestimmt haben.',
+    @commands.command(pass_context=True,
+                      description='Liste von Spielern, die noch nicht abgestimmt haben.',
                       brief='Liste von Spielern, die noch nicht abgestimmt haben.')
     @commands.check(is_game_channel)
     async def missingvotes(self, ctx):

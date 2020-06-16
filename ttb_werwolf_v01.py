@@ -52,9 +52,6 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    #channels = [TEST_SERVER_ID]
-    #for channel in channels:
-        #await bot.get_channel(channel).send('Hallo, ich bin neu hier!')
     await bot.change_presence(activity=discord.Game(name='Werwolf'))
 
 @bot.event

@@ -1,4 +1,3 @@
-#from random import shuffle
 from private import *
 from my_constants import *
 from collections import Counter
@@ -8,7 +7,6 @@ import random
 import discord
 import asyncio
 import re
-import random
 
 
 def is_game_channel(ctx):
@@ -27,6 +25,14 @@ def is_game_channel_or_dm(ctx):
     :return: `True` if the channel is a game channel or a DM channel otherwise `False`
     """
     return is_game_channel(ctx) or isinstance(ctx.message.channel, discord.DMChannel)
+
+def no_werewolf_channel_yet(ctx):
+    """Check if there is already a werewolf channel in the server.
+
+    :param ctx: Context
+    :return: `True` if there is already a werewolf channel in the server otherwise `False`
+    """
+    return ctx.guild.id not in server_list
 
 
 async def distribute_roles(s, ww_roles):
