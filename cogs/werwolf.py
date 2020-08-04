@@ -66,6 +66,7 @@ class Werwolf(commands.Cog):
                       hidden=True,
                       description='Werwolf zu meinem Server hinzufügen. *Der Bot braucht dafür die Berechtigung, Kanäle zu verwalten!*',
                       brief='Werwolf zu meinem Server hinzufügen.')
+    @commands.is_owner()
     async def addchannel(self, ctx):
         with open('private.json', 'w', encoding='utf-8') as server_data:
             # Kann man datenschutztechnisch sicher besser loesen, aber da der Bot eh nur privat genutzt wird, spielt das erst mal nur eine kleinere Rolle
@@ -239,7 +240,20 @@ class Werwolf(commands.Cog):
                       brief='Liste von Spielern, die noch am Leben sind.')
     @commands.check(is_game_channel_or_dm)
     async def alive(self, ctx):
-        game: Game = self.games[ctx.guild.id]
+        if not ctx.guild:
+            guild_id = None
+            for g_id, game in self.games.items():
+                if ctx.author in game.player_list.keys():
+                    guild_id = g_id
+                    break
+            if guild_id:
+                game: Game = self.games[guild_id]
+            else:
+                await ctx.send(NO_INFO)
+                return
+        else:
+            game: Game = self.games[ctx.guild.id]
+
         if game.playing:
             await ctx.send(STILL_ALIVE.format(alive='\n'.join([player.mention for player in game.player_list if is_alive(game, player.id)])))
         else:
