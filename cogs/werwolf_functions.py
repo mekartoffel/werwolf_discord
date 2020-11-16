@@ -56,13 +56,18 @@ async def distribute_roles(s, ww_roles):
         del s.player_list[player]['wake up']
         del s.player_list[player]['description']
 
-        await player.send(ROLE_FOR_PLAYER.format(role=role))
-        if role == WITCH_ROLE:
-            s.player_list[player]['tranks'] = ["Heiltrank", "Gifttrank"]
-        if not s.player_list[player]['good']:
-            werewolves.append(player)
-            await player.send(NEW_WW_CHANNEL.format(channel_id=str(s.werewolf_channel)))
-            await s.bot.get_channel(s.werewolf_channel).set_permissions(player, read_messages=True, send_messages=True)
+        try:
+            await player.send(ROLE_FOR_PLAYER.format(role=role))
+            if role == WITCH_ROLE:
+                s.player_list[player]['tranks'] = ["Heiltrank", "Gifttrank"]
+            if not s.player_list[player]['good']:
+                werewolves.append(player)
+                await player.send(NEW_WW_CHANNEL.format(channel_id=str(s.werewolf_channel)))
+                await s.bot.get_channel(s.werewolf_channel).set_permissions(player, read_messages=True, send_messages=True)
+        except discord.Forbidden:
+            await reset_vars(s)
+            await s.bot.get_channel(s.game_channel).send('Ich konnte nicht jedem eine Privatnachricht schicken. Bitte überprüft, ob Server-Mitglieder euch Direktnachrichten schreiben dürfen.\nDas Spiel wurde zurückgesetzt.')
+            return
     await s.bot.get_channel(s.werewolf_channel).send(WEREWOLVES_WELCOME.format(werewolves=' '.join([w.mention for w in werewolves])))
     print(s.player_list)
     await first_night(s)
