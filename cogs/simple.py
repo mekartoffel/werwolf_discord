@@ -10,9 +10,13 @@ class Allgemein(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_message(self, message:discord.Message):
-        # Er soll aber nicht auf sich selbst reagieren
+    async def on_message(self, message: discord.Message):
+        # Doesn't react to itself
         if message.author == self.bot.user:
+            return
+
+        if message.author.bot or message.content[0] in ['$','+']:
+            # If this is a message from or to another bot
             return
 
         try:

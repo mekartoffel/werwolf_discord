@@ -23,7 +23,7 @@
     "alive": 1,
     "voted for": null,
     "citizen": null,
-    "description": "Jede Nacht erwacht der weiße Werwolf mit den Werwölfen und sucht sich mit ihnen ein Opfer unter den Dorfbewohnern. Doch jede zweite Nacht erwacht er, nach Aufruf durch den Spielleiter, alleine in einer eigenen Phase und darf einen Werwolf töten, wenn er möchte (jedoch keinen Dorfbewohner)."
+    "description": "Jede Nacht erwacht der weiße Werwolf mit den Werwölfen und sucht sich mit ihnen ein Opfer unter den Dorfbewohnern. Doch jede zweite Nacht erwacht er, nach Aufruf durch den Spielleiter, alleine in einer eigenen Phase und darf einen Werwolf töten, wenn er möchte (jedoch keinen Dorfbewohner). *Achtung:* Der weiße Werwolf kann nur alleine gewinnen."
   },
   "Wildes Kind": {
     "wake up": {

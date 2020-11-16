@@ -14,6 +14,7 @@ bot = commands.Bot(command_prefix='?', description='Der Tingeltangelbot')
 
 
 startup_extensions = ['cogs.simple',
+                      'cogs.game_basics',
                       'cogs.werwolf']
 
 for ext in startup_extensions:

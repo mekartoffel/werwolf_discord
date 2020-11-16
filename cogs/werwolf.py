@@ -1,12 +1,10 @@
-#import json
-
 from discord.ext import commands
 from cogs.werwolf_functions import *
 from typing import Dict
 from private import *
 
 
-class Game:
+class WW_Game:
 
     def __init__(self, server_id, game_channel, werewolf_channel, bot, ww):
         self.ww = ww
@@ -42,116 +40,48 @@ class Werwolf(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        #with open('private.json', 'r', encoding='utf-8') as server_data:
-        #    server_dict = json.load(server_data)
-        self.games = {int(v): Game(int(v), k['game channel'], k['werewolf channel'], bot, self) for v, k in server_dict.copy().items()}
+        self.games = {int(v): WW_Game(int(v), k['ww game channel'], k['werewolf channel'], bot, self) for v, k in server_dict.copy().items()}
         print(self.games)
 
     @commands.command(pass_context=True,
+                      aliases=['addwerwolf'],
                       description='Werwolf zum Server hinzufügen. *Der Bot braucht dafür die Berechtigung, Kanäle zu verwalten!*',
                       brief='Werwolf zum Server hinzufügen.')
     @commands.check(no_werewolf_channel_yet)
     async def addwerewolf(self, ctx):
         with open('private.json', 'w', encoding='utf-8') as server_data:
             # Kann man datenschutztechnisch sicher besser loesen, aber da der Bot eh nur privat genutzt wird, spielt das erst mal nur eine kleinere Rolle
-            s_dict = json.load(server_data)
-            s_dict[str(ctx.guild.id)] = {}
-            ww_cat = await ctx.guild.create_category('Werewolf')
-            general_ww_channel = await ctx.guild.create_text_channel('general_werewolf', category=ww_cat)
-            s_dict[str(ctx.guild.id)]['game channel'] = general_ww_channel.id
-            ww_channel = await ctx.guild.create_text_channel('werewolves', category=ww_cat)
-            s_dict[str(ctx.guild.id)]['werewolf channel'] = ww_channel.id
-
-    @commands.command(pass_context=True,
-                      hidden=True,
-                      description='Werwolf zu meinem Server hinzufügen. *Der Bot braucht dafür die Berechtigung, Kanäle zu verwalten!*',
-                      brief='Werwolf zu meinem Server hinzufügen.')
-    @commands.is_owner()
-    async def addchannel(self, ctx):
-        with open('private.json', 'w', encoding='utf-8') as server_data:
-            # Kann man datenschutztechnisch sicher besser loesen, aber da der Bot eh nur privat genutzt wird, spielt das erst mal nur eine kleinere Rolle
             if not server_dict[str(ctx.guild.id)]:
                 server_dict[str(ctx.guild.id)] = {}
-            test_cat = await ctx.guild.create_category('Test')
-            test_channel = await ctx.guild.create_text_channel('test_chan', category=test_cat)
-            server_dict[str(ctx.guild.id)]['test channel'] = test_channel.id
+            ww_cat = await ctx.guild.create_category('Werewolf')
+            general_ww_channel = await ctx.guild.create_text_channel('general_werewolf', category=ww_cat)
+            server_dict[str(ctx.guild.id)]['ww game channel'] = general_ww_channel.id
+            ww_channel = await ctx.guild.create_text_channel('werewolves', category=ww_cat)
+            server_dict[str(ctx.guild.id)]['werewolf channel'] = ww_channel.id
             json.dump(server_dict, server_data, ensure_ascii=False)
+            get_server_info()
+
+    @addwerewolf.error
+    async def addwerewolf_on_error(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            await asyncio.sleep(0.5)
+            await ctx.send('Die Werwolf Channel gibt es hier schon.')
+        elif isinstance(error, commands.BotMissingPermissions):
+            await asyncio.sleep(0.5)
+            await ctx.send('Dem Bot fehlt leider die Berechtigung, die Channel hinzuzufügen.')
 
 
     @commands.command(pass_context=True,
                       description='Was muss ich tun, um Werwolf zu spielen?',
                       brief='Was muss ich tun, um Werwolf zu spielen?')
     async def werwolfinfo(self, ctx):
-        game: Game = self.games[ctx.guild.id]
+        game: WW_Game = self.games[ctx.guild.id]
         await ctx.send('Zum Werwolf spielen geht zum Kanal <#{}> und gebt `?ready` ein. Wenn ihr das Spiel starten wollt, dann `?start` eingeben. Die Person, die den Start-Command eingegeben hat, wird dann die Rollen bestimmen, mit denen gespielt wird. *(Achtet darauf, dass alle Spielern auch Nachrichten von Nicht-Freunden empfangen können!)*\nViel Spaß!'.format(game.game_channel))
 
 
-    @commands.command(pass_context=True,
-                      name='description',
-                      description='Beschreibung des Spiels Werwolf.',
-                      brief='Beschreibung des Spiels Werwolf.')
-    @commands.check(is_game_channel_or_dm)
-    async def descr(self, ctx):
-        await ctx.send('Thematisch geht es darum, dass das kleine Dörfchen Düsterwald von Werwölfen heimgesucht wird. Die Gruppe der Bürger versucht die Wölfe, die sich als Bürger getarnt haben, zu entlarven. Dagegen versuchen die Wölfe, als einzige zu überleben und Widersacher auszuschalten. Darüber hinaus gibt es Charaktere mit eigenen Zielen. ||(Geklaut von Wikipedia)||\n(Für Infos, was für Charaktere es gibt, sende `?roles` und für Infos zu einem speziellen Charakter sende `?roles [Charaktername]`.)')
-
-
-    @commands.command(pass_context=True,
-                      hidden=True,
-                      description='Beschreibung des Spiels Werwolf.',
-                      brief='Beschreibung des Spiels Werwolf.')
-    @commands.check(is_game_channel_or_dm)
-    async def beschreibung(self, ctx):
-        await self.descr.invoke(ctx)
-
-
-    @commands.command(pass_context=True,
-                      hidden=True,
-                      description='TEST',
-                      brief='TEST')
-    @commands.is_owner()
-    async def test(self, ctx):
-        game: Game = self.games[TEST_SERVER_ID]
-        game.current_roles = ['Heiler', 'Hexe', 'Seherin']
-        game.ready_list.append(ctx.message.author)
-        self.global_playerlist.append(ctx.message.author)
-        game.playing = True
-        for i in range(len(game.current_roles) - 2):
-            role = game.current_roles[i] = ' '.join([part.capitalize() for part in game.current_roles[i].split(' ')])
-            role_info = self.ww_roles[role].copy()
-            role_info['role'] = role
-
-            game.player_list[ctx.message.author] = role_info
-            del game.player_list[ctx.message.author]['wake up']
-            del game.player_list[ctx.message.author]['description']
-            print(game)
-        await wake_healer(game)
-
-
-    @commands.command(pass_context=True,
-                      description='Beschreibung der verschiedenen Rollen.',
-                      brief='Beschreibung der verschiedenen Rollen.')
-    @commands.check(is_game_channel_or_dm)
-    async def roles(self, ctx, *, argument):
-        arg = ' '.join([part.capitalize() for part in argument.split(' ')])
-        print(arg)
-        print(self.ww_roles[arg])
-        await ctx.send(self.ww_roles[arg]['description'])
-
-
-    @roles.error
-    async def roles_on_error(self, ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await asyncio.sleep(0.5)
-            await ctx.send(WHICH_ROLES.format(role_list=', '.join(self.role_list)))
-
-
-    @commands.command(pass_context=True,
-                      description='Bereit für Werwolf.',
-                      brief='Bereit für Werwolf.')
-    @commands.check(is_game_channel)
     async def ready(self, ctx):
         print(ctx.guild.id)
-        game: Game = self.games[ctx.guild.id]
+        game: WW_Game = self.games[ctx.guild.id]
         if ctx.message.author not in self.global_playerlist and ctx.message.author not in game.ready_list and not game.playing:
             self.global_playerlist.append(ctx.message.author)
             print(self.global_playerlist)
@@ -166,21 +96,9 @@ class Werwolf(commands.Cog):
         else:
             await ctx.send(ALREADY_SOMEWHERE)
 
-    @commands.command(pass_context=True,
-                      hidden=True,
-                      description='Bereit für Werwolf.',
-                      brief='Bereit für Werwolf.')
-    @commands.check(is_game_channel)
-    async def bereit(self, ctx):
-        await self.ready.invoke(ctx)
 
-
-    @commands.command(pass_context=True,
-                      description='Nicht mehr bereit für Werwolf.',
-                      brief='Nicht mehr bereit für Werwolf.')
-    @commands.check(is_game_channel)
     async def unready(self, ctx):
-        game: Game = self.games[ctx.guild.id]
+        game: WW_Game = self.games[ctx.guild.id]
         if ctx.message.author in self.global_playerlist and ctx.message.author in game.ready_list and not game.playing:
             self.global_playerlist.remove(ctx.message.author)
             game.ready_list.remove(ctx.message.author)
@@ -193,24 +111,16 @@ class Werwolf(commands.Cog):
             await ctx.send('Du warst eh nicht bereit.')
 
 
-    @commands.command(pass_context=True,
-                      description='Liste von Spielern, die bereit sind.',
-                      brief='Liste von Spielern, die bereit sind.')
-    @commands.check(is_game_channel)
     async def readylist(self, ctx):
-        game: Game = self.games[ctx.guild.id]
+        game: WW_Game = self.games[ctx.guild.id]
         if game.ready_list:
             await ctx.send(WHOS_READY.format(players='\n'.join([player.mention for player in game.ready_list])))
         else:
             await ctx.send(NO_ONE_READY)
 
 
-    @commands.command(pass_context=True,
-                      description='Starte Werwolf. Derjenige, der startet, bestimmt, welche Rollen mit dabei sind.',
-                      brief='Starte Werwolf.')
-    @commands.check(is_game_channel)
     async def start(self, ctx):
-        game: Game = self.games[ctx.guild.id]
+        game: WW_Game = self.games[ctx.guild.id]
         player = ctx.message.author
         if player not in game.ready_list:
             # Der Starter muss auch in der ready_list sein
@@ -234,6 +144,40 @@ class Werwolf(commands.Cog):
         else:
             await ctx.send(NOT_ENOUGH_PLAYERS.format(missing=str(self.PLAYER_MIN - len(game.ready_list))))
 
+    @commands.command(pass_context=True, hidden=True, description='TEST', brief='TEST')
+    @commands.is_owner()
+    async def test(self, ctx):
+        game: WW_Game = self.games[TEST_SERVER_ID]
+        game.current_roles = ['Heiler', 'Hexe', 'Seherin']
+        game.ready_list.append(ctx.message.author)
+        self.global_playerlist.append(ctx.message.author)
+        game.playing = True
+        for i in range(len(game.current_roles) - 2):
+            role = game.current_roles[i] = ' '.join([part.capitalize() for part in game.current_roles[i].split(' ')])
+            role_info = self.ww_roles[role].copy()
+            role_info['role'] = role
+
+            game.player_list[ctx.message.author] = role_info
+            del game.player_list[ctx.message.author]['wake up']
+            del game.player_list[ctx.message.author]['description']
+            print(game)
+        await wake_healer(game)
+
+    @commands.command(pass_context=True, description='Beschreibung der verschiedenen Rollen.',
+                      brief='Beschreibung der verschiedenen Rollen.')
+    @commands.check(is_game_channel_or_dm)
+    async def roles(self, ctx, *, argument):
+        arg = ' '.join([part.capitalize() for part in argument.split(' ')])
+        print(arg)
+        print(self.ww_roles[arg])
+        await ctx.send(self.ww_roles[arg]['description'])
+
+    @roles.error
+    async def roles_on_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await asyncio.sleep(0.5)
+            await ctx.send(WHICH_ROLES.format(role_list=', '.join(self.role_list)))
+
 
     @commands.command(pass_context=True,
                       description='Liste von Spielern, die noch am Leben sind.',
@@ -247,12 +191,12 @@ class Werwolf(commands.Cog):
                     guild_id = g_id
                     break
             if guild_id:
-                game: Game = self.games[guild_id]
+                game: WW_Game = self.games[guild_id]
             else:
                 await ctx.send(NO_INFO)
                 return
         else:
-            game: Game = self.games[ctx.guild.id]
+            game: WW_Game = self.games[ctx.guild.id]
 
         if game.playing:
             await ctx.send(STILL_ALIVE.format(alive='\n'.join([player.mention for player in game.player_list if is_alive(game, player.id)])))
@@ -261,12 +205,12 @@ class Werwolf(commands.Cog):
 
 
     @commands.command(pass_context=True,
-                      hidden=True,
+                      aliases=['missing_votes','missingvote','missingvotes'],
                       description='Liste von Spielern, die noch nicht abgestimmt haben.',
                       brief='Liste von Spielern, die noch nicht abgestimmt haben.')
     @commands.check(is_game_channel)
     async def missing_vote(self, ctx):
-        game: Game = self.games[ctx.guild.id]
+        game: WW_Game = self.games[ctx.guild.id]
         if game.playing and game.phase == 'VOTING':
             await ctx.send(MISSING_VOTES.format(players='\n'.join([player.mention for player in game.player_list if is_alive(game, player.id) and not game.player_list[player]['voted for']])))
         elif not game.playing:
@@ -274,36 +218,13 @@ class Werwolf(commands.Cog):
         else:
             await ctx.send(NOT_VOTING)
 
-    @commands.command(pass_context=True,
-                      hidden=True,
-                      description='Liste von Spielern, die noch nicht abgestimmt haben.',
-                      brief='Liste von Spielern, die noch nicht abgestimmt haben.')
-    @commands.check(is_game_channel)
-    async def missing_votes(self, ctx):
-        await self.missing_vote.invoke(ctx)
-
-    @commands.command(pass_context=True,
-                      hidden=True,
-                      description='Liste von Spielern, die noch nicht abgestimmt haben.',
-                      brief='Liste von Spielern, die noch nicht abgestimmt haben.')
-    @commands.check(is_game_channel)
-    async def missingvote(self, ctx):
-        await self.missing_vote.invoke(ctx)
-
-    @commands.command(pass_context=True,
-                      description='Liste von Spielern, die noch nicht abgestimmt haben.',
-                      brief='Liste von Spielern, die noch nicht abgestimmt haben.')
-    @commands.check(is_game_channel)
-    async def missingvotes(self, ctx):
-        await self.missing_vote.invoke(ctx)
-
 
     @commands.command(pass_context=True,
                       description='Liste von Spielern und wie viele Leute schon gegen sie gestimmt haben.',
                       brief='Wer hat schon wie viele Stimmen?')
     @commands.check(is_game_channel)
     async def votes(self, ctx):
-        game: Game = self.games[ctx.guild.id]
+        game: WW_Game = self.games[ctx.guild.id]
         candidates = []
         for c, v in game.player_list.items():
             candidates.append(v['voted for'])
@@ -311,24 +232,20 @@ class Werwolf(commands.Cog):
         await self.bot.get_channel(game.game_channel).send(VOTED.format(votes='\n'.join([u.mention + ': ' + str(c) for u, c in count_cand.items() if u])))
 
 
-    @commands.command(pass_context=True,
-                      hidden=True,
-                      description='Setzt die Ready-Liste für Werwolf zurück. Das kann aber nur der Bot-Owner.',
-                      brief='Setzt die Ready-Liste für Werwolf zurück.')
-    @commands.is_owner()
-    async def reset(self, ctx):
-        game: Game = self.games[ctx.guild.id]
+    async def reset_readylist(self, ctx):
+        game: WW_Game = self.games[ctx.guild.id]
         if not game.playing:
             game.ready_list = []
-            await ctx.send('Die Bereit-Liste wurde zurückgesetzt. Sie ist nun wieder leer.')
+            await ctx.send('Die Ready-Liste wurde zurückgesetzt. Sie ist nun wieder leer.')
 
     @commands.command(pass_context=True,
                       hidden=True,
+                      aliases=['resetgame'],
                       description='Setzt die Ready-Liste für Werwolf zurück. Das kann aber nur der Bot-Owner.',
                       brief='Setzt die Ready-Liste für Werwolf zurück.')
     @commands.is_owner()
     async def reset_game(self, ctx):
-        game: Game = self.games[ctx.guild.id]
+        game: WW_Game = self.games[ctx.guild.id]
         if game.playing:
             await reset_vars(game)
             await ctx.send('Das Spiel wurde zurückgesetzt.')
@@ -338,7 +255,7 @@ class Werwolf(commands.Cog):
         try:
             player = message.author
             server_id = [server_id for server_id in self.games.keys() if player in self.games[server_id].ready_list][0]
-            game: Game = self.games[server_id]
+            game: WW_Game = self.games[server_id]
         except IndexError:
             return
 
@@ -351,7 +268,7 @@ class Werwolf(commands.Cog):
 
         elif game.playing:
             print(game.phase)
-            if message.channel.id in game_channel_list:
+            if message.channel.id in ww_game_channel_list:
                 if  message.author.id == game.playerID and game.phase == "SELECTION":
                     if game.game_status['waiting for selection']:
                         game.current_roles = [r.strip() for r in message.content.split(',')]
