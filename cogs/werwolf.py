@@ -4,7 +4,7 @@ from typing import Dict
 from private import *
 
 
-class WW_Game:
+class WWGame:
 
     def __init__(self, server_id, game_channel, werewolf_channel, bot, ww):
         self.ww = ww
@@ -24,7 +24,7 @@ class WW_Game:
         self.phase = ''  # Was passiert gerade?
 
         self.game_status: Dict[str, bool] = {'waiting for selection': False, 'selecting': False, 'playing': False}
-        self.round_no = 3
+        self.round_no = 1
 
 
 class Werwolf(commands.Cog):
@@ -40,7 +40,7 @@ class Werwolf(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.games = {int(v): WW_Game(int(v), k['ww game channel'], k['werewolf channel'], bot, self) for v, k in server_dict.copy().items()}
+        self.games = {int(v): WWGame(int(v), k['ww game channel'], k['werewolf channel'], bot, self) for v, k in server_dict.copy().items()}
         print(self.games)
 
     @commands.command(pass_context=True,
@@ -75,13 +75,13 @@ class Werwolf(commands.Cog):
                       description='Was muss ich tun, um Werwolf zu spielen?',
                       brief='Was muss ich tun, um Werwolf zu spielen?')
     async def werwolfinfo(self, ctx):
-        game: WW_Game = self.games[ctx.guild.id]
+        game: WWGame = self.games[ctx.guild.id]
         await ctx.send('Zum Werwolf spielen geht zum Kanal <#{}> und gebt `?ready` ein. Wenn ihr das Spiel starten wollt, dann `?start` eingeben. Die Person, die den Start-Command eingegeben hat, wird dann die Rollen bestimmen, mit denen gespielt wird. *(Achtet darauf, dass alle Spielern auch Nachrichten von Nicht-Freunden empfangen können!)*\nViel Spaß!'.format(game.game_channel))
 
 
     async def ready(self, ctx):
         print(ctx.guild.id)
-        game: WW_Game = self.games[ctx.guild.id]
+        game: WWGame = self.games[ctx.guild.id]
         if ctx.message.author not in self.global_playerlist and ctx.message.author not in game.ready_list and not game.playing:
             self.global_playerlist.append(ctx.message.author)
             print(self.global_playerlist)
@@ -98,7 +98,7 @@ class Werwolf(commands.Cog):
 
 
     async def unready(self, ctx):
-        game: WW_Game = self.games[ctx.guild.id]
+        game: WWGame = self.games[ctx.guild.id]
         if ctx.message.author in self.global_playerlist and ctx.message.author in game.ready_list and not game.playing:
             self.global_playerlist.remove(ctx.message.author)
             game.ready_list.remove(ctx.message.author)
@@ -112,7 +112,7 @@ class Werwolf(commands.Cog):
 
 
     async def readylist(self, ctx):
-        game: WW_Game = self.games[ctx.guild.id]
+        game: WWGame = self.games[ctx.guild.id]
         if game.ready_list:
             await ctx.send(WHOS_READY.format(players='\n'.join([player.mention for player in game.ready_list])))
         else:
@@ -120,7 +120,7 @@ class Werwolf(commands.Cog):
 
 
     async def start(self, ctx):
-        game: WW_Game = self.games[ctx.guild.id]
+        game: WWGame = self.games[ctx.guild.id]
         player = ctx.message.author
         if player not in game.ready_list:
             # Der Starter muss auch in der ready_list sein
@@ -147,7 +147,7 @@ class Werwolf(commands.Cog):
     @commands.command(pass_context=True, hidden=True, description='TEST', brief='TEST')
     @commands.is_owner()
     async def test(self, ctx):
-        game: WW_Game = self.games[TEST_SERVER_ID]
+        game: WWGame = self.games[TEST_SERVER_ID]
         game.current_roles = ['Heiler', 'Hexe', 'Seherin']
         game.ready_list.append(ctx.message.author)
         self.global_playerlist.append(ctx.message.author)
@@ -191,12 +191,12 @@ class Werwolf(commands.Cog):
                     guild_id = g_id
                     break
             if guild_id:
-                game: WW_Game = self.games[guild_id]
+                game: WWGame = self.games[guild_id]
             else:
                 await ctx.send(NO_INFO)
                 return
         else:
-            game: WW_Game = self.games[ctx.guild.id]
+            game: WWGame = self.games[ctx.guild.id]
 
         if game.playing:
             await ctx.send(STILL_ALIVE.format(alive='\n'.join([player.mention for player in game.player_list if is_alive(game, player.id)])))
@@ -210,7 +210,7 @@ class Werwolf(commands.Cog):
                       brief='Liste von Spielern, die noch nicht abgestimmt haben.')
     @commands.check(is_game_channel)
     async def missing_vote(self, ctx):
-        game: WW_Game = self.games[ctx.guild.id]
+        game: WWGame = self.games[ctx.guild.id]
         if game.playing and game.phase == 'VOTING':
             await ctx.send(MISSING_VOTES.format(players='\n'.join([player.mention for player in game.player_list if is_alive(game, player.id) and not game.player_list[player]['voted for']])))
         elif not game.playing:
@@ -224,7 +224,7 @@ class Werwolf(commands.Cog):
                       brief='Wer hat schon wie viele Stimmen?')
     @commands.check(is_game_channel)
     async def votes(self, ctx):
-        game: WW_Game = self.games[ctx.guild.id]
+        game: WWGame = self.games[ctx.guild.id]
         candidates = []
         for c, v in game.player_list.items():
             candidates.append(v['voted for'])
@@ -233,7 +233,7 @@ class Werwolf(commands.Cog):
 
 
     async def reset_readylist(self, ctx):
-        game: WW_Game = self.games[ctx.guild.id]
+        game: WWGame = self.games[ctx.guild.id]
         if not game.playing:
             game.ready_list = []
             await ctx.send('Die Ready-Liste wurde zurückgesetzt. Sie ist nun wieder leer.')
@@ -245,7 +245,7 @@ class Werwolf(commands.Cog):
                       brief='Setzt die Ready-Liste für Werwolf zurück.')
     @commands.is_owner()
     async def reset_game(self, ctx):
-        game: WW_Game = self.games[ctx.guild.id]
+        game: WWGame = self.games[ctx.guild.id]
         if game.playing:
             await reset_vars(game)
             await ctx.send('Das Spiel wurde zurückgesetzt.')
@@ -255,7 +255,7 @@ class Werwolf(commands.Cog):
         try:
             player = message.author
             server_id = [server_id for server_id in self.games.keys() if player in self.games[server_id].ready_list][0]
-            game: WW_Game = self.games[server_id]
+            game: WWGame = self.games[server_id]
         except IndexError:
             return
 

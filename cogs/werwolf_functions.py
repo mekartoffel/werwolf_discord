@@ -538,7 +538,14 @@ async def choosing_werewolves(s, msg):
                 if not v['good'] and v['citizen'] != msg.guild.me:
                     citizens.append(v['citizen'])
             try:
-                s.died[0] = max(dict(Counter(citizens)).items(), key=operator.itemgetter(1))[0]
+                count = dict(Counter(citizens)).items()
+                max_count = max(count, key=operator.itemgetter(1))[1]
+                citizen_count = [c for c in count if c[1]==max_count]
+                if citizen_count == 1:
+                    s.died[0] = max(count, key=operator.itemgetter(1))[0]
+                else:
+                    await s.bot.get_channel(s.werewolf_channel).send(WEREWOLVES_WHO_TO_KILL)
+                    return
             except ValueError:
                 pass
             if not s.died[0]:
