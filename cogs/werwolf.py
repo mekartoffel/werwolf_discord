@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.ext.commands import has_permissions
 from cogs.werwolf_functions import *
 from typing import Dict
 from private import *
@@ -41,13 +42,13 @@ class Werwolf(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.games = {int(v): WWGame(int(v), k['ww game channel'], k['werewolf channel'], bot, self) for v, k in server_dict.copy().items()}
-        print(self.games)
 
     @commands.command(pass_context=True,
                       aliases=['addwerwolf'],
                       description='Werwolf zum Server hinzufügen. *Der Bot braucht dafür die Berechtigung, Kanäle zu verwalten!*',
                       brief='Werwolf zum Server hinzufügen.')
     @commands.check(no_werewolf_channel_yet)
+    @has_permissions(administrator=True)
     async def addwerewolf(self, ctx):
         with open('private.json', 'w', encoding='utf-8') as server_data:
             # Kann man datenschutztechnisch sicher besser loesen, aber da der Bot eh nur privat genutzt wird, spielt das erst mal nur eine kleinere Rolle
@@ -63,7 +64,10 @@ class Werwolf(commands.Cog):
 
     @addwerewolf.error
     async def addwerewolf_on_error(self, ctx, error):
-        if isinstance(error, commands.CheckFailure):
+        if isinstance(error, commands.MissingPermissions):
+            await asyncio.sleep(0.5)
+            await ctx.send('Nur Admins können Werwolf zum Server hinzufügen.')
+        elif isinstance(error, commands.CheckFailure):
             await asyncio.sleep(0.5)
             await ctx.send('Die Werwolf Channel gibt es hier schon.')
         elif isinstance(error, commands.BotMissingPermissions):
@@ -84,9 +88,9 @@ class Werwolf(commands.Cog):
         game: WWGame = self.games[ctx.guild.id]
         if ctx.message.author not in self.global_playerlist and ctx.message.author not in game.ready_list and not game.playing:
             self.global_playerlist.append(ctx.message.author)
-            print(self.global_playerlist)
+            print('global readylist ww:',self.global_playerlist)
             game.ready_list.append(ctx.message.author)
-            print(game.ready_list)
+            print('server readylist ww:',game.ready_list)
             await ctx.message.delete()
             await ctx.send(READY.format(player=ctx.message.author.mention))
         elif game.playing:
